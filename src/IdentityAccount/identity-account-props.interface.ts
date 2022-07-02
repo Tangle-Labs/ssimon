@@ -1,4 +1,4 @@
-import { Account } from '@iota/identity-wasm/node';
+import { Account } from "@iota/identity-wasm/node";
 
 export interface IIdentityAccountProps {
   /**

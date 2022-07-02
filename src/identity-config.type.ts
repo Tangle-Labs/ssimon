@@ -1,4 +1,4 @@
-import { DID, Document } from '@iota/identity-wasm/node';
+import { DID, Document } from "@iota/identity-wasm/node";
 
 export type IdentityConfig = {
   alias: string;
