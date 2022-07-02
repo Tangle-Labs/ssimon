@@ -11,6 +11,7 @@
     "@iota/identity-wasm": "^0.6.0"
   },
   "scripts": {
+    "build": "tsc",
     "test": "jest",
     "coverage": "jest --coverage",
     "lint": "eslint . --cache",
