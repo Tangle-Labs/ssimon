@@ -1,5 +1,5 @@
-import { IIdentityAccountProps } from './identity-account-props.interface';
-import { CredentialsManager } from '../CredentialsManager/credentials-manager';
+import { IIdentityAccountProps } from "./identity-account-props.interface";
+import { CredentialsManager } from "../CredentialsManager/credentials-manager";
 import {
   Account,
   MethodContent,
@@ -11,8 +11,8 @@ import {
   EncryptedData,
   DID,
   Document,
-} from '@iota/identity-wasm/node';
-import { Fragment } from '../identity-manager.types';
+} from "@iota/identity-wasm/node";
+import { Fragment } from "../identity-manager.types";
 
 /**
  * Utitlity class to bind wrapper methods to an Identity Instance
@@ -26,7 +26,7 @@ export class IdentityAccount {
     this.account = props.account;
     this.credentials = new CredentialsManager(
       props.account,
-      '#revocation-bitmap'
+      "#revocation-bitmap"
     );
   }
 
@@ -61,7 +61,7 @@ export class IdentityAccount {
     });
     const revocationBitmap = new RevocationBitmap();
     await this.account.createService({
-      fragment: 'revocation-bitmap',
+      fragment: "revocation-bitmap",
       type: RevocationBitmap.type(),
       endpoint: revocationBitmap.toEndpoint(),
     });
@@ -98,7 +98,7 @@ export class IdentityAccount {
   ): Promise<EncryptedData> {
     const method = this.account.document().resolveMethod(fragment);
 
-    if (!method) throw new Error('Method not found');
+    if (!method) throw new Error("Method not found");
     const publicKey = method.data().tryDecode();
 
     const agreementInfo = new AgreementInfo(
@@ -112,7 +112,7 @@ export class IdentityAccount {
 
     const cekAlgorithm = CekAlgorithm.EcdhEs(agreementInfo);
     const message = Buffer.from(plainText);
-    const associatedData = Buffer.from('associatedData');
+    const associatedData = Buffer.from("associatedData");
 
     const encryptedData = await this.account
       .encryptData(
@@ -126,7 +126,7 @@ export class IdentityAccount {
         console.error(err);
       });
 
-    if (!encryptedData) throw new Error('failed to encrypt data');
+    if (!encryptedData) throw new Error("failed to encrypt data");
     return encryptedData;
   }
 

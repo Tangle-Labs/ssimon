@@ -1,12 +1,12 @@
-import { AccountBuilder, DID } from '@iota/identity-wasm/node';
-import { Stronghold } from '@iota/identity-stronghold-nodejs';
-import { IIdentityManagerProps } from './identity-manager-props.interface';
-import { IdentityConfig } from './identity-config.type';
-import { promisify } from 'util';
-import { clientConfig } from './client-config';
-import { IdentityAccount } from './IdentityAccount/identity-account';
-import * as fs from 'fs';
-import * as path from 'path';
+import { AccountBuilder, DID } from "@iota/identity-wasm/node";
+import { Stronghold } from "@iota/identity-stronghold-nodejs";
+import { IIdentityManagerProps } from "./identity-manager-props.interface";
+import { IdentityConfig } from "./identity-config.type";
+import { promisify } from "util";
+import { clientConfig } from "./client-config";
+import { IdentityAccount } from "./IdentityAccount/identity-account";
+import * as fs from "fs";
+import * as path from "path";
 
 const fsReadFile = promisify(fs.readFile);
 const fsWriteFile = promisify(fs.writeFile);
@@ -133,7 +133,7 @@ export class IdentityManager {
       }
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (error.code !== 'ENOENT') {
+      if (error.code !== "ENOENT") {
         throw new Error(error);
       }
     }
@@ -147,7 +147,7 @@ export class IdentityManager {
       },
     ];
     await fsWriteFile(identityPath, JSON.stringify(identities)).catch(() => {
-      throw new Error('Unable to write IdentityConfig');
+      throw new Error("Unable to write IdentityConfig");
     });
     return new IdentityAccount({ account });
   }
@@ -162,7 +162,7 @@ export class IdentityManager {
   async getIdentityByAlias(alias: string): Promise<IdentityAccount> {
     const identities: IdentityConfig[] = await this.getIdentityConfig();
     const identity = identities.find((i: IdentityConfig) => i.alias === alias);
-    if (!identity) throw new Error('Identity not found');
+    if (!identity) throw new Error("Identity not found");
     const account = await this.builder.loadIdentity(DID.fromJSON(identity.did));
     return new IdentityAccount({ account });
   }
