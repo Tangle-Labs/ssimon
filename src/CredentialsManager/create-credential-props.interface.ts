@@ -1,4 +1,4 @@
-import { Fragment } from '../identity-manager.types';
+import { Fragment } from "../identity-manager.types";
 
 export interface ICreateCredentialProps {
   /**

@@ -8,11 +8,11 @@ import {
   ResolvedDocument,
   Resolver,
   RevocationBitmap,
-} from '@iota/identity-wasm/node';
-import { resolveTxt } from 'dns/promises';
-import { clientConfig } from '../client-config';
-import { Fragment } from '../identity-manager.types';
-import { ICreateCredentialProps } from './create-credential-props.interface';
+} from "@iota/identity-wasm/node";
+import { resolveTxt } from "dns/promises";
+import { clientConfig } from "../client-config";
+import { Fragment } from "../identity-manager.types";
+import { ICreateCredentialProps } from "./create-credential-props.interface";
 
 /**
  * Credentials Manager is a helper class which contains all the abstractions for creating
@@ -112,13 +112,13 @@ export class CredentialsManager {
     const domain = signedVc
       .toJSON()
       .id.split(/(https|http):\/\//)[2]
-      .split('/')[0];
+      .split("/")[0];
     const txtRecords = await resolveTxt(domain);
     const didRecord = txtRecords.find((record) =>
-      record[0].includes('DVID.did=')
+      record[0].includes("DVID.did=")
     );
-    if (!didRecord) throw new Error('DVID Record not found');
-    const didTag = didRecord[0].split('DVID.did=')[1];
+    if (!didRecord) throw new Error("DVID Record not found");
+    const didTag = didRecord[0].split("DVID.did=")[1];
     const resolvedDocument = await this.resolver.resolve(didTag);
 
     return this.isCredentialValid(signedVc, resolvedDocument);
