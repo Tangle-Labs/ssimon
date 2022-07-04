@@ -65,7 +65,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           always-auth: true
-          node-version: "12.x"
+          node-version: "16.x"
           registry-url: "https://registry.npmjs.org"
 
       - name: install deps
