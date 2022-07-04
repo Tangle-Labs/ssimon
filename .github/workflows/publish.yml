@@ -68,6 +68,9 @@ jobs:
           node-version: "12.x"
           registry-url: "https://registry.npmjs.org"
 
+      - name: install deps
+        run: yarn
+
       - name: build
         run: yarn build
 
