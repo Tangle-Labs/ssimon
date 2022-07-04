@@ -11,19 +11,19 @@ DVID verification connects your DID to a record on a domain's DNS, inspired by t
 IdentityManager can be installed using
 
 ```
-$ npm install @tanglelabs/identity-manager
+$ npm install identity-manager
 ```
 
 or
 
 ```
-$ yarn add @tanglelabs/identity-manager
+$ yarn add identity-manager
 ```
 
 you can then add it to your project and use it
 
 ```ts
-import { IdentityManager } from "@tanglelabs/identity-manager";
+import { IdentityManager } from "identity-manager";
 
 async function run() {
     const manager = await IdentityManager.newIntsance({

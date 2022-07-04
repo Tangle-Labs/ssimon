@@ -1,4 +1,4 @@
-import { IdentityManager } from "@tanglelabs/identity-manager";
+import { IdentityManager } from "identity-manager";
 
 async function run() {
   // Instantiate a new instance of Identity Manager
