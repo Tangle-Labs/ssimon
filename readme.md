@@ -36,4 +36,7 @@ async function run() {
 run();
 ```
 
-see [examples](docs/examples) for more
+## Documentation
+
+- see [API Reference](docs/api-ref.md)
+- see [examples](docs/examples)
