@@ -68,6 +68,9 @@ jobs:
           node-version: "12.x"
           registry-url: "https://registry.npmjs.org"
 
+      - name: build
+        run: yarn build
+
       - name: Publish tagged version
         if: steps.release.outputs.tag != ''
         run: yarn publish --new-version ${{ steps.release.outputs.version }} --tag ${{ steps.release.outputs.tag }} --access public
