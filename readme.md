@@ -36,4 +36,4 @@ async function run() {
 run();
 ```
 
-see examples for more
+see [examples](docs/examples) for more
