@@ -30,6 +30,7 @@ async function run() {
         filepath: "./identity"
         password: process.env.IDENTITY_PASSWORD
     });
+
     const did = await manager.createDid("identity-alias");
 }
 
