@@ -26,7 +26,7 @@ you can then add it to your project and use it
 import { IdentityManager } from "@tanglelabs/identity-manager";
 
 async function run() {
-    const manager = await IdentityManager.newIntsance({
+    const manager = await IdentityManager.newInstance({
         filepath: "./identity"
         password: process.env.IDENTITY_PASSWORD
     });
