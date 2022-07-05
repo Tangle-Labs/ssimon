@@ -1,26 +1,31 @@
 export interface IStorageDriver<T> {
   /**
-   * Find and return all instanstances
+   * Find and return all instanstances of Credentiaks
    */
   findAll: () => Promise<T[]>;
 
   /**
    * Find and return the first match with a similar partial
    */
-  findOne: (data: Partial<T>) => Promise<T>;
+  findById: (id: string) => Promise<T>;
 
   /**
-   * Save a new piece of data
+   * Find by credential subject, return all matches
    */
-  save: (data: Partial<T>) => Promise<T>;
+  findByCredentialType: (credType: string) => Promise<T[]>;
 
   /**
-   * Update the first entry which matches the identifier
+   * Find by issuer, return all matches
    */
-  update: (identifier: Partial<T>, body: Partial<T>) => Promise<T>;
+  findByIssuer: (issuer: string) => Promise<T[]>;
+
+  /**
+   * Save a new credential
+   */
+  new: (data: T) => Promise<void>;
 
   /**
    * Delete the first entry that matches the Identifier
    */
-  delete: (data: Partial<T>) => Promise<T>;
+  delete: (id: string) => Promise<void>;
 }
