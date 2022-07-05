@@ -1,20 +1,24 @@
-import { IdentityManager } from "../identity-manager";
+import { IdentityManager } from "../../identity-manager";
 import { Credential, EncryptedData, Resolver } from "@iota/identity-wasm/node";
 import * as path from "path";
 import * as fs from "fs";
-import { IdentityAccount } from "../IdentityAccount/identity-account";
+import { IdentityAccount } from "../../IdentityAccount/identity-account";
 
-const testingFilepath = path.join(__dirname, "./testing-identity");
-const strongholdFilepath = path.join(__dirname, "../../dist/");
+const testingFilepath = path.join(__dirname, "../testing-identity");
+const strongholdFilepath = path.join(__dirname, "../../../dist/");
 const strongholdPassword = "password";
 const managerAlias = "identity";
 try {
-  fs.unlinkSync(path.resolve(__dirname, "../../dist/", "identity.stronghold"));
+  fs.unlinkSync(
+    path.resolve(__dirname, "../../../dist/", "identity.stronghold")
+  );
 } catch {
   null;
 }
 try {
-  fs.unlinkSync(path.resolve(__dirname, "../../dist/", "identity-config.json"));
+  fs.unlinkSync(
+    path.resolve(__dirname, "../../../dist/", "identity-config.json")
+  );
 } catch {
   null;
 }
