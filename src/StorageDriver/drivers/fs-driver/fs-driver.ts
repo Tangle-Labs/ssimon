@@ -134,6 +134,6 @@ export class FsStorageDriver implements IStorageDriver<Credential, unknown> {
   async delete(id: string): Promise<void> {
     const creds = await this.getFileContents();
     const credsFiltered = creds.filter((c) => c.id() !== id);
-    await this.writeFileContents(creds);
+    await this.writeFileContents(credsFiltered);
   }
 }

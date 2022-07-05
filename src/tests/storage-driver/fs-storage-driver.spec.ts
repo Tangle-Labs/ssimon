@@ -57,5 +57,7 @@ describe("fs-storage-driver", () => {
     await fsDriver.delete(id);
     const creds = await fsDriver.findAll();
     expect(creds[0].toJSON()).toEqual(cred1.toJSON());
+    const credDeleted = await fsDriver.findById(id);
+    expect(credDeleted).toBeUndefined();
   });
 });
