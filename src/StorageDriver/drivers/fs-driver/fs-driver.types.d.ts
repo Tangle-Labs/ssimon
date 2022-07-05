@@ -4,5 +4,7 @@ export interface IFsDriverOpts {
   /**
    * FilePath for the JSON where credentials shall be stored
    */
-  filepath: PathLike;
+  filepath: JsonPath;
 }
+
+export type JsonPath = `${PathLike}.json`;

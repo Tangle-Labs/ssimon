@@ -1,4 +1,4 @@
-export interface IStorageDriver<T> {
+export interface IStorageDriver<T, K> {
   /**
    * Find and return all instanstances of Credentiaks
    */
@@ -22,7 +22,7 @@ export interface IStorageDriver<T> {
   /**
    * Save a new credential
    */
-  new: (data: T) => Promise<void>;
+  newCredential: (data: T) => Promise<T & K>;
 
   /**
    * Delete the first entry that matches the Identifier
