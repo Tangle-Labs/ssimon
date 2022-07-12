@@ -10,7 +10,7 @@ import { IStoredVc } from "../storage-driver.types";
 export class MongoStorageDriver
   implements IStorageDriver<Credential, Document>
 {
-  mongouri: `mongodb://${string}`;
+  mongouri: string;
   account: IdentityAccount;
   fragment: Fragment;
 

@@ -1,5 +1,5 @@
 import { IBaseStorageDriverProps } from "../storage-driver.types";
 
 export interface IMongoDriverOptions extends IBaseStorageDriverProps {
-  mongouri: `mongodb://${string}`;
+  mongouri: string;
 }
