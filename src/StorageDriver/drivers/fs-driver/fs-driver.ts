@@ -17,7 +17,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, unknown> {
 
   private constructor(options: IFsDriverProps) {
     this.filepath = options.filepath;
-    this.account = options.identityAccount;
+    this.account = options.account;
     this.fragment = options.fragment;
   }
 

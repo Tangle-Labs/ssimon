@@ -36,7 +36,7 @@ describe("fs-storage-driver", () => {
 
     fsDriver = await FsStorageDriver.newInstance({
       filepath: credsFilepath,
-      identityAccount: did,
+      account: did,
       fragment,
     });
     expect(fsDriver).toBeInstanceOf(FsStorageDriver);
