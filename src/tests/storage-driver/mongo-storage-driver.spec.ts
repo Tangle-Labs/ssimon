@@ -19,6 +19,7 @@ tryUnlinkFile(`${testingFilepath}/alias-config.json`);
 tryUnlinkFile(`${testingFilepath}/alias.stronghold`);
 
 let mongoDriver: MongoStorageDriver;
+let mongoServer: MongoMemoryServer;
 
 describe("mongo-storage-driver", () => {
   test("should instantiate MongoStorageDriver", async () => {
@@ -28,7 +29,7 @@ describe("mongo-storage-driver", () => {
       managerAlias: "alias",
     });
 
-    const mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create();
 
     const fragment = "#encryption";
 
@@ -84,5 +85,7 @@ describe("mongo-storage-driver", () => {
     const creds = await mongoDriver.findAll();
     expect(creds[0].toJSON()).toEqual(cred1.toJSON());
     await expect(mongoDriver.findById(id)).rejects.toThrow();
+
+    await mongoServer.stop({ doCleanup: true });
   });
 });
