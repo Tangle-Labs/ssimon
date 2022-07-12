@@ -17,7 +17,6 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
 
   private constructor(options: IFsDriverProps) {
     this.filepath = options.filepath;
-    this.account = options.account;
     this.fragment = options.fragment;
   }
 
@@ -59,6 +58,11 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     const fileData = await fsReadFile(this.filepath).catch(() => {
       throw new Error("FS ERROR: Unable to read file data");
     });
+
+    // I HAVE NO IDEA WHY THIS IS HAPPENING BUT REMOVING THIS CONSOLE LOG
+    // LEADS TO 4 UNIT TESTS FAILING :carloshuh:
+    console.log("");
+
     return JSON.parse(fileData.toString());
   }
 

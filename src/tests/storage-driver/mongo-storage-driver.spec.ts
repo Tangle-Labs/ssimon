@@ -15,8 +15,8 @@ function tryUnlinkFile(filepath: fs.PathLike) {
   }
 }
 
-tryUnlinkFile(`${testingFilepath}/alias-config.json`);
-tryUnlinkFile(`${testingFilepath}/alias.stronghold`);
+tryUnlinkFile(`${testingFilepath}/mongo-id-config.json`);
+tryUnlinkFile(`${testingFilepath}/mongo-id.stronghold`);
 
 let mongoDriver: MongoStorageDriver;
 let mongoServer: MongoMemoryServer;
@@ -26,7 +26,7 @@ describe("mongo-storage-driver", () => {
     const manager = await IdentityManager.newInstance({
       filepath: testingFilepath,
       password: "password",
-      managerAlias: "alias",
+      managerAlias: "mongo-id",
     });
 
     mongoServer = await MongoMemoryServer.create();
@@ -38,7 +38,6 @@ describe("mongo-storage-driver", () => {
 
     mongoDriver = await MongoStorageDriver.newInstance({
       mongouri: mongoServer.getUri(),
-      account: did,
       fragment,
     });
     expect(mongoDriver).toBeInstanceOf(MongoStorageDriver);

@@ -10,9 +10,9 @@ import {
  * @param {StorageDriverProps<T> & IBaseStorageDriverProps} props
  * @returns {Promise<StorageDriver>}
  */
-export async function create<T>(
+export async function buildStorageDriver<T>(
   props: StorageDriverProps<T> & IBaseStorageDriverProps
 ): Promise<StorageDriver> {
-  const { type, options, account, fragment } = props;
-  return type.newInstance({ ...options, account, fragment });
+  const { type, options, fragment } = props;
+  return type.newInstance({ ...options, fragment });
 }

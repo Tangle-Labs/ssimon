@@ -16,8 +16,8 @@ function tryUnlinkFile(filepath: fs.PathLike) {
 }
 
 tryUnlinkFile(credsFilepath);
-tryUnlinkFile(`${testingFilepath}/alias-config.json`);
-tryUnlinkFile(`${testingFilepath}/alias.stronghold`);
+tryUnlinkFile(`${testingFilepath}/fs-id-config.json`);
+tryUnlinkFile(`${testingFilepath}/fs-id.stronghold`);
 
 let fsDriver: FsStorageDriver;
 
@@ -26,7 +26,7 @@ describe("fs-storage-driver", () => {
     const manager = await IdentityManager.newInstance({
       filepath: testingFilepath,
       password: "password",
-      managerAlias: "alias",
+      managerAlias: "fs-id",
     });
 
     const fragment = "#encryption";
@@ -36,7 +36,6 @@ describe("fs-storage-driver", () => {
 
     fsDriver = await FsStorageDriver.newInstance({
       filepath: credsFilepath,
-      account: did,
       fragment,
     });
     expect(fsDriver).toBeInstanceOf(FsStorageDriver);

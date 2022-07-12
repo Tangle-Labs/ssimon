@@ -78,10 +78,6 @@ export interface IBaseStorageDriverProps {
   /**
    * Fragment to encrypt credentials with
    */
-  fragment: Fragment;
 
-  /**
-   * account to use to encrypt those credentials
-   */
-  account: IdentityAccount;
+  fragment: Fragment;
 }

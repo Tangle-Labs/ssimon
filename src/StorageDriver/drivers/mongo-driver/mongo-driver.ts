@@ -16,7 +16,6 @@ export class MongoStorageDriver
 
   private constructor(options: IMongoDriverOptions) {
     this.mongouri = options.mongouri;
-    this.account = options.account;
     this.fragment = options.fragment;
   }
 
