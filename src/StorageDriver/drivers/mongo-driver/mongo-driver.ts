@@ -1,15 +1,23 @@
 import { IStorageDriver } from "../../storage-driver.interface";
 import { Credential } from "@iota/identity-wasm/node";
 import { IMongoDriverOptions } from "./mongo-driver.types";
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+import { StoredVc } from "./stored-vc.schema";
+import { IdentityAccount } from "../../../IdentityAccount/identity-account";
+import { Fragment } from "../../../identity-manager.types";
+import { IStoredVc } from "../storage-driver.types";
 
 export class MongoStorageDriver
   implements IStorageDriver<Credential, Document>
 {
   mongouri: `mongodb://${string}`;
+  account: IdentityAccount;
+  fragment: Fragment;
 
   private constructor(options: IMongoDriverOptions) {
     this.mongouri = options.mongouri;
+    this.account = options.account;
+    this.fragment = options.fragment;
   }
 
   /**
@@ -23,7 +31,14 @@ export class MongoStorageDriver
     options: IMongoDriverOptions
   ): Promise<MongoStorageDriver> {
     const mongoDriver = new MongoStorageDriver(options);
+    await this.connectMongoDb(options.mongouri);
     return mongoDriver;
+  }
+
+  private static async connectMongoDb(uri: string) {
+    await mongoose.connect(uri).catch((err) => {
+      throw new Error(`unable to connect to mongodb: ${err}`);
+    });
   }
 
   /**
@@ -32,7 +47,15 @@ export class MongoStorageDriver
    * @returns {Promise<Credential[]>}
    */
   async findAll(): Promise<Credential[]> {
-    return this.getFileContents();
+    return Promise.all(
+      (await StoredVc.find({})).map(async (c) => {
+        return Credential.fromJSON(
+          JSON.parse(
+            await this.account.decryptData(c.credential, this.fragment)
+          )
+        );
+      })
+    );
   }
 
   /**
@@ -42,8 +65,13 @@ export class MongoStorageDriver
    * @returns {Promise<Credential[]>}
    */
   async findById(id: string): Promise<Credential> {
-    const creds = await this.findAll();
-    return creds.find((c) => c.id() === id);
+    const foundCredRaw = await StoredVc.findOne({ id });
+    if (!foundCredRaw) throw new Error("Credential Not found");
+    return Credential.fromJSON(
+      JSON.parse(
+        await this.account.decryptData(foundCredRaw.credential, this.fragment)
+      )
+    );
   }
 
   /**
@@ -53,8 +81,17 @@ export class MongoStorageDriver
    * @returns {Promise<Credential[]>}
    */
   async findByCredentialType(credType: string): Promise<Credential[]> {
-    const creds = await this.findAll();
-    return creds.filter((c) => c.type().includes(credType));
+    const foundCredsRaw = await StoredVc.find({ type: { $in: [credType] } });
+    if (!foundCredsRaw) throw new Error("Credentials Not found");
+    return Promise.all(
+      foundCredsRaw.map(async (c) => {
+        return Credential.fromJSON(
+          JSON.parse(
+            await this.account.decryptData(c.credential, this.fragment)
+          )
+        );
+      })
+    );
   }
 
   /**
@@ -64,8 +101,17 @@ export class MongoStorageDriver
    * @returns {Promise<Credential[]>}
    */
   async findByIssuer(issuer: string): Promise<Credential[]> {
-    const creds = await this.findAll();
-    return creds.filter((c) => c.issuer() === issuer);
+    const foundCredsRaw = await StoredVc.find({ issuer });
+    if (!foundCredsRaw) throw new Error("Credentials Not found");
+    return Promise.all(
+      foundCredsRaw.map(async (c) => {
+        return Credential.fromJSON(
+          JSON.parse(
+            await this.account.decryptData(c.credential, this.fragment)
+          )
+        );
+      })
+    );
   }
 
   /**
@@ -74,12 +120,20 @@ export class MongoStorageDriver
    * @param {Credential} cred - credential to add to FS
    * @returns {Promise<void>}
    */
-  async newCredential(cred: Credential): Promise<Credential & unknown> {
-    const credentialExists = await this.findById(cred.id());
+  async newCredential(cred: Credential): Promise<Partial<IStoredVc>> {
+    const credentialExists = await StoredVc.findOne({ id: cred.id() });
     if (credentialExists) throw new Error("credential already exists");
-    const creds = await this.findAll();
-    this.writeFileContents([...creds, cred]);
-    return cred;
+    const encrypted = await this.account.encryptData(
+      JSON.stringify(cred.toJSON()),
+      this.fragment
+    );
+    const storedCred = await StoredVc.create({
+      id: cred.id(),
+      type: cred.type(),
+      issuer: cred.issuer(),
+      credential: encrypted.toJSON(),
+    });
+    return storedCred;
   }
 
   /**
@@ -89,8 +143,6 @@ export class MongoStorageDriver
    * @returns {Promise<void>}
    */
   async delete(id: string): Promise<void> {
-    const creds = await this.getFileContents();
-    const credsFiltered = creds.filter((c) => c.id() !== id);
-    await this.writeFileContents(credsFiltered);
+    await StoredVc.findOneAndDelete({ id });
   }
 }

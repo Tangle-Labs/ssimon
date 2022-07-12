@@ -10,7 +10,7 @@ import { Fragment } from "../../../identity-manager.types";
 const fsReadFile = promisify(readFile);
 const fsWriteFile = promisify(writeFile);
 
-export class FsStorageDriver implements IStorageDriver<Credential, unknown> {
+export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
   filepath: PathLike;
   account: IdentityAccount;
   fragment: Fragment;
@@ -153,7 +153,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, unknown> {
    * @param {Credential} cred - credential to add to FS
    * @returns {Promise<void>}
    */
-  async newCredential(cred: Credential): Promise<Credential & unknown> {
+  async newCredential(cred: Credential): Promise<IStoredVc> {
     const storedCredentials = await this.getFileContents();
     const credentialExists = storedCredentials.find((c) => c.id === cred.id());
     if (credentialExists) throw new Error("credential already exists");
@@ -169,7 +169,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, unknown> {
       credential: encrypted.toJSON(),
     };
     this.writeFileContents([...creds, storedCred]);
-    return cred;
+    return storedCred;
   }
 
   /**

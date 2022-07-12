@@ -22,7 +22,7 @@ export interface IStorageDriver<T, K> {
   /**
    * Save a new credential
    */
-  newCredential: (data: T) => Promise<T & K>;
+  newCredential: (data: T) => Promise<Partial<K>>;
 
   /**
    * Delete the first entry that matches the Identifier
