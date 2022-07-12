@@ -1,19 +1,44 @@
 import { FsStorageDriver } from "../../StorageDriver/drivers/fs-driver/fs-driver";
 import { cred1, cred2 } from "./sample-creds";
+import { IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
 
-const filepath = path.resolve(__dirname, "../../../dist/creds.json");
-try {
-  fs.unlinkSync(filepath);
-} catch {
-  null;
+const credsFilepath = path.resolve(__dirname, "../../../dist/creds.json");
+const testingFilepath = path.resolve(__dirname, "../../../dist/");
+
+function tryUnlinkFile(filepath: fs.PathLike) {
+  try {
+    fs.unlinkSync(filepath);
+  } catch {
+    null;
+  }
 }
+
+tryUnlinkFile(credsFilepath);
+tryUnlinkFile(`${testingFilepath}/alias-config.json`);
+tryUnlinkFile(`${testingFilepath}/alias.stronghold`);
+
 let fsDriver: FsStorageDriver;
 
 describe("fs-storage-driver", () => {
   test("should instantiate FsStorageDriver", async () => {
-    fsDriver = await FsStorageDriver.newInstance({ filepath });
+    const manager = await IdentityManager.newInstance({
+      filepath: testingFilepath,
+      password: "password",
+      managerAlias: "alias",
+    });
+
+    const fragment = "#encryption";
+
+    const did = await manager.createDid("new-did");
+    await did.attachEncryptionMethod(fragment);
+
+    fsDriver = await FsStorageDriver.newInstance({
+      filepath: credsFilepath,
+      identityAccount: did,
+      fragment,
+    });
     expect(fsDriver).toBeInstanceOf(FsStorageDriver);
   });
 
@@ -57,7 +82,6 @@ describe("fs-storage-driver", () => {
     await fsDriver.delete(id);
     const creds = await fsDriver.findAll();
     expect(creds[0].toJSON()).toEqual(cred1.toJSON());
-    const credDeleted = await fsDriver.findById(id);
-    expect(credDeleted).toBeUndefined();
+    await expect(fsDriver.findById(id)).rejects.toThrow();
   });
 });

@@ -133,13 +133,13 @@ export class IdentityAccount {
   /**
    * Decrypt the data
    *
-   * @param {EncryptedData | JSON} encryptedData - data to decrypt
+   * @param {EncryptedData | JSON | Record<string, unknown>} encryptedData - data to decrypt
    * @param {Fragment} fragment - fragment to decrypt the data with
    * @returns {Promise<string>}
    */
 
   async decryptData(
-    encryptedData: EncryptedData | JSON,
+    encryptedData: EncryptedData | JSON | Record<string, unknown>,
     fragment: Fragment
   ): Promise<string> {
     encryptedData =
