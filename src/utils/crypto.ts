@@ -11,7 +11,12 @@ const iv = crypto.randomBytes(16);
  * @returns
  */
 export const encrypt = (text: string, password: string) => {
-  const cipher = crypto.createCipheriv(algorithm, password, iv);
+  let key = crypto
+    .createHash("sha256")
+    .update(String(password))
+    .digest("base64")
+    .substr(0, 32);
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
 
   return {

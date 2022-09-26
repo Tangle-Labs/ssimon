@@ -56,134 +56,142 @@ describe("identity-manager", () => {
   });
 
   /**
-   * Check if an error is thrown on a duplicate alias
+   * Try to create a backup of the Identity
    */
-
-  test("should throw error on duplicate alias", async () => {
-    await expect(
-      identityManager?.createDid({
-        alias: "test-1",
-        store: {
-          type: Types.Fs,
-          options: { filepath: credsFilepath },
-        },
-      })
-    ).rejects.toThrowError();
+  test("should backup the identity", async () => {
+    const backup = await identityManager.createBackup("password");
+    console.log(backup);
   });
 
-  /**
-   * Attempt to load the DID by it's Alias
-   */
+  // /**
+  //  * Check if an error is thrown on a duplicate alias
+  //  */
 
-  test("should load DID by alias", async () => {
-    const identity = await identityManager.getIdentityByAlias("test-1");
-    expect(identity).toBeInstanceOf(IdentityAccount);
-  });
+  // test("should throw error on duplicate alias", async () => {
+  //   await expect(
+  //     identityManager?.createDid({
+  //       alias: "test-1",
+  //       store: {
+  //         type: Types.Fs,
+  //         options: { filepath: credsFilepath },
+  //       },
+  //     })
+  //   ).rejects.toThrowError();
+  // });
 
-  /**
-   * Attach a signing method to the DID
-   */
+  // /**
+  //  * Attempt to load the DID by it's Alias
+  //  */
 
-  test("should attach signing method to DID", async () => {
-    const identity = await identityManager.getIdentityByAlias("test-1");
-    await identity.attachSigningMethod("#signing-method");
-  });
+  // test("should load DID by alias", async () => {
+  //   const identity = await identityManager.getIdentityByAlias("test-1");
+  //   expect(identity).toBeInstanceOf(IdentityAccount);
+  // });
 
-  /**
-   * Sign a Credential and verify it
-   */
+  // /**
+  //  * Attach a signing method to the DID
+  //  */
 
-  test("should sign and verify a VC", async () => {
-    const loadedIdentityManager = await IdentityManager.newInstance({
-      filepath: testingFilepath,
-      password: "password",
-      managerAlias,
-    });
+  // test("should attach signing method to DID", async () => {
+  //   const identity = await identityManager.getIdentityByAlias("test-1");
+  //   await identity.attachSigningMethod("#signing-method");
+  // });
 
-    const identity = await loadedIdentityManager.getIdentityByAlias("main-did");
-    const signedVc = await identity.credentials.create({
-      keyIndex: 5,
-      id: "http://coodos.co/123",
-      type: "UniversityDegreeCredential",
-      fragment: "#signing-method",
-      recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
-      body: {
-        testFieldOne: "asdf",
-        testFieldTwo: "asdf",
-      },
-    });
+  // /**
+  //  * Sign a Credential and verify it
+  //  */
 
-    expect(signedVc).toBeInstanceOf(Credential);
-    const validationResult = await identity.credentials.verifyCredential(
-      signedVc
-    );
+  // test("should sign and verify a VC", async () => {
+  //   const loadedIdentityManager = await IdentityManager.newInstance({
+  //     filepath: testingFilepath,
+  //     password: "password",
+  //     managerAlias,
+  //   });
 
-    expect(validationResult).toBeTruthy();
-  });
+  //   const identity = await loadedIdentityManager.getIdentityByAlias("main-did");
+  //   const signedVc = await identity.credentials.create({
+  //     keyIndex: 5,
+  //     id: "http://coodos.co/123",
+  //     type: "UniversityDegreeCredential",
+  //     fragment: "#signing-method",
+  //     recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
+  //     body: {
+  //       testFieldOne: "asdf",
+  //       testFieldTwo: "asdf",
+  //     },
+  //   });
 
-  /**
-   * Sign a credential and revoke it
-   */
+  //   expect(signedVc).toBeInstanceOf(Credential);
+  //   const validationResult = await identity.credentials.verifyCredential(
+  //     signedVc
+  //   );
 
-  test("should sign a credential and revoke it", async () => {
-    const identity = await identityManager.createDid({
-      alias: String(Math.random()),
-      store: {
-        type: Types.Fs,
-        options: { filepath: credsFilepath },
-      },
-    });
-    await identity.attachSigningMethod("#signing-method");
-    const signedVc = await identity.credentials.create({
-      keyIndex: 5,
-      id: "http://coodos.co/123",
-      type: "UniversityDegreeCredential",
-      fragment: "#signing-method",
-      recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
-      body: {
-        testFieldOne: "asdf...",
-        testFieldTwo: "asdf...",
-      },
-    });
+  //   expect(validationResult).toBeTruthy();
+  // });
 
-    const resolver = new Resolver();
-    const did1 = await resolver.resolve(signedVc.toJSON().issuer);
-    const result = await identity.credentials.isCredentialValid(signedVc, did1);
-    expect(result).toBeTruthy();
-    await identity.credentials.revokeCredential(5);
-    const did = await resolver.resolve(signedVc.toJSON().issuer);
-    const revokedResult = await identity.credentials.isCredentialValid(
-      signedVc,
-      did
-    );
-    expect(revokedResult).toBeFalsy();
-  });
+  // /**
+  //  * Sign a credential and revoke it
+  //  */
 
-  /**
-   * Attach an encryption endpoint
-   */
+  // test("should sign a credential and revoke it", async () => {
+  //   const identity = await identityManager.createDid({
+  //     alias: String(Math.random()),
+  //     store: {
+  //       type: Types.Fs,
+  //       options: { filepath: credsFilepath },
+  //     },
+  //   });
+  //   await identity.attachSigningMethod("#signing-method");
+  //   const signedVc = await identity.credentials.create({
+  //     keyIndex: 5,
+  //     id: "http://coodos.co/123",
+  //     type: "UniversityDegreeCredential",
+  //     fragment: "#signing-method",
+  //     recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
+  //     body: {
+  //       testFieldOne: "asdf...",
+  //       testFieldTwo: "asdf...",
+  //     },
+  //   });
 
-  test("should attach encryption endpoint", async () => {
-    const did = await identityManager.createDid({
-      alias: "encryption-did",
-      store: {
-        type: Types.Fs,
-        options: { filepath: credsFilepath },
-      },
-    });
-    await did.attachEncryptionMethod();
-  });
+  //   const resolver = new Resolver();
+  //   const did1 = await resolver.resolve(signedVc.toJSON().issuer);
+  //   const result = await identity.credentials.isCredentialValid(signedVc, did1);
+  //   expect(result).toBeTruthy();
+  //   await identity.credentials.revokeCredential(5);
+  //   const did = await resolver.resolve(signedVc.toJSON().issuer);
+  //   const revokedResult = await identity.credentials.isCredentialValid(
+  //     signedVc,
+  //     did
+  //   );
+  //   expect(revokedResult).toBeFalsy();
+  // });
 
-  /**
-   * Encrypt a message and decrypt it
-   */
+  // /**
+  //  * Attach an encryption endpoint
+  //  */
 
-  test("should encrypt and decrypt a message", async () => {
-    const did = await identityManager.getIdentityByAlias("encryption-did");
-    const plainText = "foo bar";
-    const encryptedData = await did.credentials.encryptData(plainText);
-    expect(encryptedData).toBeInstanceOf(EncryptedData);
-    const decryptedData = await did.credentials.decryptData(encryptedData);
-    expect(decryptedData).toEqual(plainText);
-  });
+  // test("should attach encryption endpoint", async () => {
+  //   const did = await identityManager.createDid({
+  //     alias: "encryption-did",
+  //     store: {
+  //       type: Types.Fs,
+  //       options: { filepath: credsFilepath },
+  //     },
+  //   });
+  //   await did.attachEncryptionMethod();
+  // });
+
+  // /**
+  //  * Encrypt a message and decrypt it
+  //  */
+
+  // test("should encrypt and decrypt a message", async () => {
+  //   const did = await identityManager.getIdentityByAlias("encryption-did");
+  //   const plainText = "foo bar";
+  //   const encryptedData = await did.credentials.encryptData(plainText);
+  //   expect(encryptedData).toBeInstanceOf(EncryptedData);
+  //   const decryptedData = await did.credentials.decryptData(encryptedData);
+  //   expect(decryptedData).toEqual(plainText);
+  // });
 });

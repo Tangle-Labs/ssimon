@@ -8,11 +8,12 @@ import { IdentityAccount } from "./IdentityAccount/identity-account";
 import * as fs from "fs";
 import * as path from "path";
 import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
-import { ICreateDidProps } from "./identity-manager.types";
+import { ICreateDidProps, IManagerBackup } from "./identity-manager.types";
 import { Types } from "./StorageDriver/drivers/storage-driver.types.interface";
 import { FsStorageDriver } from "./StorageDriver/drivers/fs-driver/fs-driver";
 import { MongoStorageDriver } from "./StorageDriver/drivers/mongo-driver/mongo-driver";
 import { clearConfigCache } from "prettier";
+import { encrypt } from "./utils/crypto";
 
 const fsReadFile = promisify(fs.readFile);
 const fsWriteFile = promisify(fs.writeFile);
@@ -216,5 +217,30 @@ export class IdentityManager {
     if (!identity) throw new Error("Identity not found");
     const account = await this.builder.loadIdentity(DID.fromJSON(identity.did));
     return await IdentityAccount.build({ account, store: identity.store });
+  }
+
+  async createBackup(password: string): Promise<IManagerBackup> {
+    const strongholdPath = path.resolve(
+      __dirname,
+      this.filepath,
+      `${this.managerAlias}.stronghold`
+    );
+
+    const stronghold = (await fsReadFile(strongholdPath)).toString();
+    const config = await this.getIdentityConfig();
+    const credentials = await Promise.all(
+      config.map(async (config: IdentityConfig) => {
+        const identity = await this.getIdentityByAlias(config.alias);
+        const creds = await identity.credentials.store.findAll();
+        return { alias: creds };
+      })
+    );
+
+    const backup = {
+      stronghold: encrypt(stronghold, password),
+      config: encrypt(JSON.stringify(config), password),
+      credentials: encrypt(JSON.stringify(credentials), password),
+    };
+    return backup;
   }
 }
