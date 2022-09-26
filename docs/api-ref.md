@@ -12,6 +12,8 @@ new credentials, DVID and revokation of credentials
     * [.isCredentialValid(signedVc, issuerIdentity)](#CredentialsManager+isCredentialValid) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [.verifyCredential(signedVc)](#CredentialsManager+verifyCredential) ⇒ <code>IVerificationResult</code>
     * [.revokeCredential(keyIndex)](#CredentialsManager+revokeCredential) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.encryptData(plainText)](#CredentialsManager+encryptData) ⇒ <code>Promise.&lt;EncryptedData&gt;</code>
+    * [.decryptData(encryptedData)](#CredentialsManager+decryptData) ⇒ <code>Promise.&lt;string&gt;</code>
 
 <a name="CredentialsManager+create"></a>
 
@@ -68,6 +70,28 @@ credentials signed using this keypair will also become invalid
 | --- | --- | --- |
 | keyIndex | <code>Number</code> | Revoke the key at the index passed |
 
+<a name="CredentialsManager+encryptData"></a>
+
+### credentialsManager.encryptData(plainText) ⇒ <code>Promise.&lt;EncryptedData&gt;</code>
+Encrypt data and return it
+
+**Kind**: instance method of [<code>CredentialsManager</code>](#CredentialsManager)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| plainText | <code>String</code> | data to be encrypted |
+
+<a name="CredentialsManager+decryptData"></a>
+
+### credentialsManager.decryptData(encryptedData) ⇒ <code>Promise.&lt;string&gt;</code>
+Decrypt the data
+
+**Kind**: instance method of [<code>CredentialsManager</code>](#CredentialsManager)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| encryptedData | <code>EncryptedData</code> \| <code>JSON</code> \| <code>Record.&lt;string, unknown&gt;</code> | data to decrypt |
+
 
 <a name="IdentityAccount"></a>
 
@@ -81,8 +105,6 @@ Utitlity class to bind wrapper methods to an Identity Instance
     * [.getDocument()](#IdentityAccount+getDocument)
     * [.attachSigningMethod(fragment)](#IdentityAccount+attachSigningMethod) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.attachEncryptionMethod(fragment)](#IdentityAccount+attachEncryptionMethod) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.encryptData(plainText, fragment)](#IdentityAccount+encryptData) ⇒ <code>Promise.&lt;EncryptedData&gt;</code>
-    * [.decryptData(encryptedData, fragment)](#IdentityAccount+decryptData) ⇒ <code>Promise.&lt;string&gt;</code>
 
 <a name="IdentityAccount+getDid"></a>
 
@@ -118,30 +140,6 @@ Manipulate the DID and attach an encryption method to it
 | --- | --- | --- |
 | fragment | <code>Fragment</code> | fragment for the encryption method |
 
-<a name="IdentityAccount+encryptData"></a>
-
-### identityAccount.encryptData(plainText, fragment) ⇒ <code>Promise.&lt;EncryptedData&gt;</code>
-Encrypt data and return it
-
-**Kind**: instance method of [<code>IdentityAccount</code>](#IdentityAccount)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| plainText | <code>String</code> | data to be encrypted |
-| fragment | <code>Fragment</code> | fragment to encrypt data with |
-
-<a name="IdentityAccount+decryptData"></a>
-
-### identityAccount.decryptData(encryptedData, fragment) ⇒ <code>Promise.&lt;string&gt;</code>
-Decrypt the data
-
-**Kind**: instance method of [<code>IdentityAccount</code>](#IdentityAccount)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| encryptedData | <code>EncryptedData</code> \| <code>JSON</code> | data to decrypt |
-| fragment | <code>Fragment</code> | fragment to decrypt the data with |
-
 
 <a name="IdentityManager"></a>
 
@@ -155,7 +153,9 @@ a path and password
 * [IdentityManager](#IdentityManager)
     * [new IdentityManager(filepath, password)](#new_IdentityManager_new)
     * _instance_
-        * [.getIdentityConfig()](#IdentityManager+getIdentityConfig) ⇒ <code>Array.&lt;IdentityConfig&gt;</code>
+        * [.getIdentityConfig()](#IdentityManager+getIdentityConfig) ⇒ <code>Promise.&lt;Array.&lt;IdentityConfig&gt;&gt;</code>
+        * [.getIdentityConfigByDid(did)](#IdentityManager+getIdentityConfigByDid) ⇒ <code>Promise.&lt;IdentityConfig&gt;</code>
+        * [.getIdentityConfigByAlias(did)](#IdentityManager+getIdentityConfigByAlias) ⇒ <code>Promise.&lt;IdentityConfig&gt;</code>
         * [.getDid(did)](#IdentityManager+getDid) ⇒ [<code>Promise.&lt;IdentityAccount&gt;</code>](#IdentityAccount)
         * [.createDid(props)](#IdentityManager+createDid) ⇒ [<code>Promise.&lt;IdentityAccount&gt;</code>](#IdentityAccount)
         * [.getIdentityByAlias(alias)](#IdentityManager+getIdentityByAlias) ⇒ [<code>Promise.&lt;IdentityAccount&gt;</code>](#IdentityAccount)
@@ -175,10 +175,32 @@ Constructor to create an instance of the class
 
 <a name="IdentityManager+getIdentityConfig"></a>
 
-### identityManager.getIdentityConfig() ⇒ <code>Array.&lt;IdentityConfig&gt;</code>
+### identityManager.getIdentityConfig() ⇒ <code>Promise.&lt;Array.&lt;IdentityConfig&gt;&gt;</code>
 Get the IdentityConfig document stored on a JSON
 
 **Kind**: instance method of [<code>IdentityManager</code>](#IdentityManager)  
+<a name="IdentityManager+getIdentityConfigByDid"></a>
+
+### identityManager.getIdentityConfigByDid(did) ⇒ <code>Promise.&lt;IdentityConfig&gt;</code>
+Get config of a did by the did tag
+
+**Kind**: instance method of [<code>IdentityManager</code>](#IdentityManager)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| did | <code>DID</code> | tag of the did to fetch |
+
+<a name="IdentityManager+getIdentityConfigByAlias"></a>
+
+### identityManager.getIdentityConfigByAlias(did) ⇒ <code>Promise.&lt;IdentityConfig&gt;</code>
+Get config of a did by the did alias
+
+**Kind**: instance method of [<code>IdentityManager</code>](#IdentityManager)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| did | <code>DID</code> | tag of the did to fetch |
+
 <a name="IdentityManager+getDid"></a>
 
 ### identityManager.getDid(did) ⇒ [<code>Promise.&lt;IdentityAccount&gt;</code>](#IdentityAccount)
