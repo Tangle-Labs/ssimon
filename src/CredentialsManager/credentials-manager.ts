@@ -64,7 +64,7 @@ export class CredentialsManager {
    * @returns {Promise<Credential>}
    */
 
-  async newCredential(props: ICreateCredentialProps): Promise<Credential> {
+  async create(props: ICreateCredentialProps): Promise<Credential> {
     const { id, recipientDid, body, type, fragment, keyIndex } = props;
 
     const credentialSubject = {
