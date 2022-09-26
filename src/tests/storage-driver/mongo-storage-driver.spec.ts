@@ -1,10 +1,11 @@
 import { MongoStorageDriver } from "../../StorageDriver/drivers/mongo-driver/mongo-driver";
 import { cred1, cred2 } from "./sample-creds";
-import { IdentityManager } from "../../";
+import { IdentityAccount, IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
+import { DID } from "@iota/identity-wasm/node";
 
 const testingFilepath = path.resolve(__dirname, "../../../dist/");
 
@@ -19,8 +20,8 @@ function tryUnlinkFile(filepath: fs.PathLike) {
 tryUnlinkFile(`${testingFilepath}/mongo-id-config.json`);
 tryUnlinkFile(`${testingFilepath}/mongo-id.stronghold`);
 
-let mongoDriver: MongoStorageDriver;
 let mongoServer: MongoMemoryServer;
+let did: IdentityAccount;
 
 describe("mongo-storage-driver", () => {
   test("should instantiate MongoStorageDriver", async () => {
@@ -32,47 +33,44 @@ describe("mongo-storage-driver", () => {
 
     mongoServer = await MongoMemoryServer.create();
 
-    const did = await manager.createDid({
+    did = await manager.createDid({
       alias: "new-did",
       store: {
-        type: Types.Fs,
+        type: Types.Mongo,
         options: {
-          filepath: "./test",
+          mongouri: mongoServer.getUri(),
         },
       },
     });
     await did.attachEncryptionMethod();
-
-    mongoDriver = await MongoStorageDriver.newInstance({
-      mongouri: mongoServer.getUri(),
-    });
-    expect(mongoDriver).toBeInstanceOf(MongoStorageDriver);
   });
 
   test("should save new credential", async () => {
-    await mongoDriver.newCredential(cred1);
-    await mongoDriver.newCredential(cred2);
+    await did.credentials.store.newCredential(cred1);
+    await did.credentials.store.newCredential(cred2);
   });
 
   test("should throw error on duplicate credential", async () => {
-    await expect(mongoDriver.newCredential(cred1)).rejects.toThrowError();
+    await expect(
+      did.credentials.store.newCredential(cred1)
+    ).rejects.toThrowError();
   });
 
   test("should find credential by id", async () => {
     const id = cred2.id() as string;
-    const cred = await mongoDriver.findById(id);
+    const cred = await did.credentials.store.findById(id);
     expect(cred2.toJSON()).toEqual(cred.toJSON());
   });
 
   test("should find all credentials by Type", async () => {
-    const creds = await mongoDriver.findByCredentialType(
+    const creds = await did.credentials.store.findByCredentialType(
       "UniversityDegreeCredential"
     );
     expect(creds.length).toEqual(2);
   });
 
   test("should find 0 credentials by incorrect Type", async () => {
-    const creds = await mongoDriver.findByCredentialType(
+    const creds = await did.credentials.store.findByCredentialType(
       "NotAUniversityDegreeCredential"
     );
     expect(creds.length).toEqual(0);
@@ -80,16 +78,16 @@ describe("mongo-storage-driver", () => {
 
   test("should find credentials by issuer", async () => {
     const issuer = cred2.issuer() as string;
-    const creds = await mongoDriver.findByIssuer(issuer);
+    const creds = await did.credentials.store.findByIssuer(issuer);
     expect(creds.length).toEqual(1);
   });
 
   test("should delete a credential by ID", async () => {
     const id = cred2.id() as string;
-    await mongoDriver.delete(id);
-    const creds = await mongoDriver.findAll();
+    await did.credentials.store.delete(id);
+    const creds = await did.credentials.store.findAll();
     expect(creds[0].toJSON()).toEqual(cred1.toJSON());
-    await expect(mongoDriver.findById(id)).rejects.toThrow();
+    await expect(did.credentials.store.findById(id)).rejects.toThrow();
 
     await mongoServer.stop({ doCleanup: true });
   });
