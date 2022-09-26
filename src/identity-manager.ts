@@ -107,7 +107,7 @@ export class IdentityManager {
    */
   private async getIdentityConfigByDid(did: DID): Promise<IdentityConfig> {
     const configs = await this.getIdentityConfig();
-    let config = configs.find((c: IdentityConfig) => c.did === did);
+    const config = configs.find((c: IdentityConfig) => c.did === did);
     config.store.type =
       config.store.type === "FS"
         ? FsStorageDriver
@@ -128,7 +128,7 @@ export class IdentityManager {
     alias: string
   ): Promise<IdentityConfig> {
     const configs = await this.getIdentityConfig();
-    let config = configs.find((c: IdentityConfig) => c.alias === alias);
+    const config = configs.find((c: IdentityConfig) => c.alias === alias);
     config.store.type =
       config.store.type === "FS"
         ? FsStorageDriver
@@ -185,7 +185,7 @@ export class IdentityManager {
       }
     }
 
-    let storeCopy = {
+    const storeCopy = {
       ...store,
       type: Types.Fs ? "FS" : store.type === Types.Mongo ? "Mongo" : store.type,
     };
