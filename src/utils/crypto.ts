@@ -11,11 +11,11 @@ const iv = crypto.randomBytes(16);
  * @returns
  */
 export const encrypt = (text: string, password: string) => {
-  let key = crypto
+  const key = crypto
     .createHash("sha256")
     .update(String(password))
     .digest("base64")
-    .substr(0, 32);
+    .substring(0, 32);
   const cipher = crypto.createCipheriv(algorithm, key, iv);
   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
 
@@ -36,9 +36,14 @@ export const decrypt = (
   hash: { iv: string; content: string },
   password: string
 ) => {
+  const key = crypto
+    .createHash("sha256")
+    .update(String(password))
+    .digest("base64")
+    .substring(0, 32);
   const decipher = crypto.createDecipheriv(
     algorithm,
-    password,
+    key,
     Buffer.from(hash.iv, "hex")
   );
 
