@@ -10,3 +10,17 @@ export interface ICreateDidProps {
   alias: string;
   store: IStorageDriverProps;
 }
+
+type HashedString = {
+  iv: string;
+  content: string;
+};
+
+/**
+ * Interface for the backup props
+ */
+export interface IManagerBackup {
+  stronghold: HashedString;
+  config: HashedString;
+  credentials: HashedString;
+}
