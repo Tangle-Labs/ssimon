@@ -192,4 +192,9 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     const credsFiltered = creds.filter((c) => c.id !== id);
     await this.writeFileContents(credsFiltered);
   }
+
+  /**
+   * Cleanup
+   */
+  async cleanup() {}
 }

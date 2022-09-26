@@ -144,4 +144,11 @@ export class MongoStorageDriver
   async delete(id: string): Promise<void> {
     await StoredVc.findOneAndDelete({ id });
   }
+
+  /**
+   * cleanup mongo connection gracefully
+   */
+  async cleanup() {
+    await mongoose.disconnect();
+  }
 }

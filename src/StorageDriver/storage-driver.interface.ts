@@ -28,4 +28,9 @@ export interface IStorageDriver<T, K> {
    * Delete the first entry that matches the Identifier
    */
   delete: (id: string) => Promise<void>;
+
+  /**
+   * Cleanup function
+   */
+  cleanup: () => Promise<void>;
 }

@@ -2,7 +2,6 @@ import { cred1, cred2 } from "./sample-creds";
 import { IdentityAccount, IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
 import { StoredVc } from "../../StorageDriver/drivers/mongo-driver/stored-vc.schema";
 
@@ -19,7 +18,6 @@ function tryUnlinkFile(filepath: fs.PathLike) {
 tryUnlinkFile(`${testingFilepath}/mongo-id-config.json`);
 tryUnlinkFile(`${testingFilepath}/mongo-id.stronghold`);
 
-let mongoServer: MongoMemoryServer;
 let did: IdentityAccount;
 
 describe("mongo-storage-driver", () => {
@@ -30,14 +28,13 @@ describe("mongo-storage-driver", () => {
       managerAlias: "mongo-id",
     });
 
-    mongoServer = await MongoMemoryServer.create();
-
     did = await manager.createDid({
       alias: "new-did",
       store: {
         type: Types.Mongo,
         options: {
-          mongouri: mongoServer.getUri(),
+          // @ts-ignore
+          mongouri: process.env.MONGO_URI,
         },
       },
     });
@@ -88,7 +85,9 @@ describe("mongo-storage-driver", () => {
     const creds = await did.credentials.store.findAll();
     expect(creds[0].toJSON()).toEqual(cred1.toJSON());
     await expect(did.credentials.store.findById(id)).rejects.toThrow();
+  });
 
-    await mongoServer.stop({ doCleanup: true });
+  afterAll(() => {
+    did.credentials.store.cleanup();
   });
 });
