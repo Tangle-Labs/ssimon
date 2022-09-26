@@ -7,6 +7,12 @@ import { clientConfig } from "./client-config";
 import { IdentityAccount } from "./IdentityAccount/identity-account";
 import * as fs from "fs";
 import * as path from "path";
+import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
+import { ICreateDidProps } from "./identity-manager.types";
+import { Types } from "./StorageDriver/drivers/storage-driver.types.interface";
+import { FsStorageDriver } from "./StorageDriver/drivers/fs-driver/fs-driver";
+import { MongoStorageDriver } from "./StorageDriver/drivers/mongo-driver/mongo-driver";
+import { clearConfigCache } from "prettier";
 
 const fsReadFile = promisify(fs.readFile);
 const fsWriteFile = promisify(fs.writeFile);
@@ -81,7 +87,7 @@ export class IdentityManager {
   /**
    * Get the IdentityConfig document stored on a JSON
    *
-   * @returns {IdentityConfig[]}
+   * @returns {Promise<IdentityConfig[]>}
    */
 
   private async getIdentityConfig(): Promise<IdentityConfig[]> {
@@ -94,6 +100,46 @@ export class IdentityManager {
   }
 
   /**
+   * Get config of a did by the did tag
+   *
+   * @param {DID} did - tag of the did to fetch
+   * @returns {Promise<IdentityConfig>}
+   */
+  private async getIdentityConfigByDid(did: DID): Promise<IdentityConfig> {
+    const configs = await this.getIdentityConfig();
+    const config = configs.find((c: IdentityConfig) => c.did === did);
+    config.store.type =
+      config.store.type === "FS"
+        ? FsStorageDriver
+        : config.store.type === "Mongo"
+        ? MongoStorageDriver
+        : config.store.type;
+
+    return config;
+  }
+
+  /**
+   * Get config of a did by the did alias
+   *
+   * @param {DID} did - tag of the did to fetch
+   * @returns {Promise<IdentityConfig>}
+   */
+  private async getIdentityConfigByAlias(
+    alias: string
+  ): Promise<IdentityConfig> {
+    const configs = await this.getIdentityConfig();
+    const config = configs.find((c: IdentityConfig) => c.alias === alias);
+    config.store.type =
+      config.store.type === "FS"
+        ? FsStorageDriver
+        : config.store.type === "Mongo"
+        ? MongoStorageDriver
+        : config.store.type;
+
+    return config;
+  }
+
+  /**
    * Load a DID stored in the same stronghold path as the one configured
    *
    * @param {DID} did
@@ -101,10 +147,10 @@ export class IdentityManager {
    */
 
   async getDid(did: DID): Promise<IdentityAccount> {
+    const { store } = await this.getIdentityConfigByDid(did);
     const account = await this.builder.loadIdentity(did);
-    return new IdentityAccount({ account });
+    return await IdentityAccount.build({ account, store });
   }
-
   /**
    * Create a new DID in the stronghold path as the one configured
    *
@@ -112,7 +158,8 @@ export class IdentityManager {
    * @returns {Promise<IdentityAccount>}
    */
 
-  async createDid(alias: string): Promise<IdentityAccount> {
+  async createDid(props: ICreateDidProps): Promise<IdentityAccount> {
+    const { alias, store } = props;
     const account = await this.builder.createIdentity();
     await account.publish();
     let identities: IdentityConfig[] = [];
@@ -138,18 +185,23 @@ export class IdentityManager {
       }
     }
 
+    const storeCopy = {
+      ...store,
+      type: Types.Fs ? "FS" : store.type === Types.Mongo ? "Mongo" : store.type,
+    };
     identities = [
       ...identities,
       {
         alias,
         document,
         did,
+        store: storeCopy,
       },
     ];
     await fsWriteFile(identityPath, JSON.stringify(identities)).catch(() => {
       throw new Error("Unable to write IdentityConfig");
     });
-    return new IdentityAccount({ account });
+    return await IdentityAccount.build({ account, store });
   }
 
   /**
@@ -160,10 +212,9 @@ export class IdentityManager {
    */
 
   async getIdentityByAlias(alias: string): Promise<IdentityAccount> {
-    const identities: IdentityConfig[] = await this.getIdentityConfig();
-    const identity = identities.find((i: IdentityConfig) => i.alias === alias);
+    const identity = await this.getIdentityConfigByAlias(alias);
     if (!identity) throw new Error("Identity not found");
     const account = await this.builder.loadIdentity(DID.fromJSON(identity.did));
-    return new IdentityAccount({ account });
+    return await IdentityAccount.build({ account, store: identity.store });
   }
 }

@@ -1,4 +1,5 @@
 import { Fragment } from "../identity-manager.types";
+import { StorageDriverProps } from "../StorageDriver/drivers/storage-driver.types";
 
 export interface ICreateCredentialProps {
   /**
@@ -17,17 +18,22 @@ export interface ICreateCredentialProps {
   type: string;
 
   /**
+   * Fragment to sign with
+   */
+  fragment: Fragment;
+
+  /**
    * DID Identifier of the recipient
    */
   recipientDid: string;
 
   /**
-   * Frgament identifier of the method to be used to sign the credential
-   */
-  fragment: Fragment;
-
-  /**
    * Body of the credential data to be signed
    */
   body: Record<string, unknown>;
+}
+
+export interface ICredentialManagerProps {
+  account: Account;
+  store: StorageDriverProps;
 }

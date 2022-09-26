@@ -1,8 +1,12 @@
 import {
   Account,
+  AgreementInfo,
+  CekAlgorithm,
   Credential,
   CredentialValidationOptions,
   CredentialValidator,
+  EncryptedData,
+  EncryptionAlgorithm,
   FailFast,
   ProofOptions,
   ResolvedDocument,
@@ -10,9 +14,23 @@ import {
   RevocationBitmap,
 } from "@iota/identity-wasm/node";
 import { resolveTxt } from "dns/promises";
+import { Options } from "prettier";
 import { clientConfig } from "../client-config";
+import {
+  EncryptionFragment,
+  RevocationFragment,
+} from "../constants/fragment.constants";
 import { Fragment } from "../identity-manager.types";
-import { ICreateCredentialProps } from "./create-credential-props.interface";
+import { IdentityAccount } from "../IdentityAccount/identity-account";
+import { buildStorageDriver } from "../StorageDriver/drivers/storage-driver";
+import {
+  StorageDriver,
+  IStorageDriverProps,
+} from "../StorageDriver/drivers/storage-driver.types";
+import {
+  ICreateCredentialProps,
+  ICredentialManagerProps,
+} from "./credentials-manager.types";
 
 /**
  * Credentials Manager is a helper class which contains all the abstractions for creating
@@ -21,14 +39,34 @@ import { ICreateCredentialProps } from "./create-credential-props.interface";
 
 export class CredentialsManager {
   resolver: Resolver;
+  fragment: Fragment;
   account: Account;
   revocationEndpoint: Fragment;
+  store: StorageDriver;
 
-  constructor(account: Account, revocationEndpoint: Fragment) {
+  private constructor(props: ICredentialManagerProps) {
+    const { account } = props;
     this.resolver = new Resolver();
     this.account = account;
-    this.revocationEndpoint = revocationEndpoint;
-    this.buildResolver();
+    this.revocationEndpoint = RevocationFragment;
+  }
+
+  static async build(props: ICredentialManagerProps) {
+    const credentialsManager = new CredentialsManager(props);
+    await credentialsManager.buildResolver();
+    await credentialsManager.buildStore(props.store);
+    return credentialsManager;
+  }
+
+  private async buildStore(props: IStorageDriverProps) {
+    this.store = await buildStorageDriver(
+      {
+        ...props,
+      },
+      this.encryptData,
+      this.decryptData,
+      this.account
+    );
   }
 
   private async buildResolver() {
@@ -43,7 +81,7 @@ export class CredentialsManager {
    */
 
   async create(props: ICreateCredentialProps): Promise<Credential> {
-    const { id, recipientDid, body, type, fragment, keyIndex } = props;
+    const { id, recipientDid, fragment, body, type, keyIndex } = props;
 
     const credentialSubject = {
       id: recipientDid,
@@ -138,5 +176,86 @@ export class CredentialsManager {
   async revokeCredential(keyIndex: number): Promise<void> {
     await this.account.revokeCredentials(this.revocationEndpoint, keyIndex);
     await this.account.publish();
+  }
+
+  /**
+   * Encrypt data and return it
+   *
+   * @param {String} plainText - data to be encrypted
+   * @returns {Promise<EncryptedData>}
+   */
+
+  async encryptData(
+    plainText: string,
+    account = this.account
+  ): Promise<EncryptedData> {
+    const method = account.document().resolveMethod(EncryptionFragment);
+
+    if (!method) throw new Error("Method not found");
+    const publicKey = method.data().tryDecode();
+
+    const agreementInfo = new AgreementInfo(
+      new Uint8Array(0),
+      new Uint8Array(0),
+      new Uint8Array(0),
+      new Uint8Array(0)
+    );
+
+    const encryptionAlgorithm = EncryptionAlgorithm.A256GCM();
+
+    const cekAlgorithm = CekAlgorithm.EcdhEs(agreementInfo);
+    const message = Buffer.from(plainText);
+    const associatedData = Buffer.from("associatedData");
+
+    const encryptedData = await this.account
+      .encryptData(
+        message,
+        associatedData,
+        encryptionAlgorithm,
+        cekAlgorithm,
+        publicKey
+      )
+      .catch((err) => {
+        console.error(err);
+      });
+
+    if (!encryptedData) throw new Error("failed to encrypt data");
+    return encryptedData;
+  }
+
+  /**
+   * Decrypt the data
+   *
+   * @param {EncryptedData | JSON | Record<string, unknown>} encryptedData - data to decrypt
+   * @returns {Promise<string>}
+   */
+
+  async decryptData(
+    encryptedData: EncryptedData | JSON | Record<string, unknown>
+  ): Promise<string> {
+    encryptedData =
+      encryptedData instanceof EncryptedData
+        ? encryptedData
+        : EncryptedData.fromJSON(encryptedData);
+
+    const agreementInfo = new AgreementInfo(
+      new Uint8Array(0),
+      new Uint8Array(0),
+      new Uint8Array(0),
+      new Uint8Array(0)
+    );
+    const encryptionAlgorithm = EncryptionAlgorithm.A256GCM();
+
+    const cekAlgorithm = CekAlgorithm.EcdhEs(agreementInfo);
+    const decryptedData = await this.account.decryptData(
+      encryptedData,
+      encryptionAlgorithm,
+      cekAlgorithm,
+      EncryptionFragment
+    );
+
+    const plainText = new TextDecoder().decode(decryptedData);
+
+    return plainText;
   }
 }
