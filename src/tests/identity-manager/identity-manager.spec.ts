@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { IdentityAccount } from "../../IdentityAccount/identity-account";
 import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
-import { EncryptedData, Resolver } from "@iota/identity-wasm/node";
+import { EncryptedData, Resolver, Credential } from "@iota/identity-wasm/node";
 
 const testingFilepath = path.join(__dirname, "../testing-identity");
 const credsFilepath = path.resolve(__dirname, "../../../dist/creds-im.json");
