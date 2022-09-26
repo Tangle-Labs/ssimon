@@ -22,7 +22,7 @@
     "store": {
       "type": "FS",
       "options": {
-        "filepath": "/Users/merul/Desktop/Projects/identity-manager/dist/creds-im.json"
+        "filepath": "../../../test"
       }
     }
   }
