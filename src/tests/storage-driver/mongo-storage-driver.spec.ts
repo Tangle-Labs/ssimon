@@ -4,6 +4,7 @@ import { IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
 
 const testingFilepath = path.resolve(__dirname, "../../../dist/");
 
@@ -31,14 +32,19 @@ describe("mongo-storage-driver", () => {
 
     mongoServer = await MongoMemoryServer.create();
 
-    const fragment = "#encryption";
-
-    const did = await manager.createDid("new-did");
-    await did.attachEncryptionMethod(fragment);
+    const did = await manager.createDid({
+      alias: "new-did",
+      store: {
+        type: Types.Fs,
+        options: {
+          filepath: "./test",
+        },
+      },
+    });
+    await did.attachEncryptionMethod();
 
     mongoDriver = await MongoStorageDriver.newInstance({
       mongouri: mongoServer.getUri(),
-      fragment,
     });
     expect(mongoDriver).toBeInstanceOf(MongoStorageDriver);
   });

@@ -36,7 +36,7 @@ export interface IMongoProps {
  */
 
 export type StorageDriver = MongoStorageDriver | FsStorageDriver;
-export type IStorageDriverProps = IFsDriverProps | IMongoProps;
+export type IStorageDriverProps = IFsProps | IMongoProps;
 
 /**
  * Spec for a stored VC schema
@@ -61,15 +61,4 @@ export interface IStoredVc {
    * Encrypted Credential
    */
   credential: Record<string, unknown>;
-}
-
-/**
- * Base props all storage drivers will need
- */
-export interface IBaseStorageDriverProps {
-  /**
-   * Fragment to encrypt credentials with
-   */
-
-  fragment: Fragment;
 }

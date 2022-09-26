@@ -14,6 +14,10 @@ import {
 } from "@iota/identity-wasm/node";
 import { Fragment } from "../identity-manager.types";
 import { Types } from "../StorageDriver/drivers/storage-driver.types.interface";
+import {
+  EncryptionFragment,
+  RevocationFragment,
+} from "../constants/fragment.constants";
 
 /**
  * Utitlity class to bind wrapper methods to an Identity Instance
@@ -26,7 +30,7 @@ export class IdentityAccount {
   constructor(props: IIdentityAccountProps) {
     this.credentials = new CredentialsManager({
       account: props.account,
-      revocationEndpoint: "#revocation-bitmap",
+      revocationEndpoint: RevocationFragment,
       store: {
         type: Types.Mongo,
         options: {
@@ -82,9 +86,9 @@ export class IdentityAccount {
    * @returns {Promise<void>}
    */
 
-  async attachEncryptionMethod(fragment: Fragment): Promise<void> {
+  async attachEncryptionMethod(): Promise<void> {
     await this.account.createMethod({
-      fragment,
+      fragment: EncryptionFragment,
       scope: MethodScope.KeyAgreement(),
       content: MethodContent.GenerateX25519(),
     });
@@ -95,15 +99,11 @@ export class IdentityAccount {
    * Encrypt data and return it
    *
    * @param {String} plainText - data to be encrypted
-   * @param {Fragment} fragment - fragment to encrypt data with
    * @returns {Promise<EncryptedData>}
    */
 
-  async encryptData(
-    plainText: string,
-    fragment: Fragment
-  ): Promise<EncryptedData> {
-    const method = this.account.document().resolveMethod(fragment);
+  async encryptData(plainText: string): Promise<EncryptedData> {
+    const method = this.account.document().resolveMethod(EncryptionFragment);
 
     if (!method) throw new Error("Method not found");
     const publicKey = method.data().tryDecode();
@@ -141,13 +141,11 @@ export class IdentityAccount {
    * Decrypt the data
    *
    * @param {EncryptedData | JSON | Record<string, unknown>} encryptedData - data to decrypt
-   * @param {Fragment} fragment - fragment to decrypt the data with
    * @returns {Promise<string>}
    */
 
   async decryptData(
-    encryptedData: EncryptedData | JSON | Record<string, unknown>,
-    fragment: Fragment
+    encryptedData: EncryptedData | JSON | Record<string, unknown>
   ): Promise<string> {
     encryptedData =
       encryptedData instanceof EncryptedData
@@ -167,7 +165,7 @@ export class IdentityAccount {
       encryptedData,
       encryptionAlgorithm,
       cekAlgorithm,
-      fragment
+      EncryptionFragment
     );
 
     const plainText = new TextDecoder().decode(decryptedData);

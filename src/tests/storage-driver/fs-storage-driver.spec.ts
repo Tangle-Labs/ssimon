@@ -3,6 +3,7 @@ import { cred1, cred2 } from "./sample-creds";
 import { IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
+import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
 
 const credsFilepath = path.resolve(__dirname, "../../../dist/creds.json");
 const testingFilepath = path.resolve(__dirname, "../../../dist/");
@@ -29,14 +30,19 @@ describe("fs-storage-driver", () => {
       managerAlias: "fs-id",
     });
 
-    const fragment = "#encryption";
-
-    const did = await manager.createDid("new-did");
-    await did.attachEncryptionMethod(fragment);
+    const did = await manager.createDid({
+      alias: "new-did",
+      store: {
+        type: Types.Fs,
+        options: {
+          filepath: "./test",
+        },
+      },
+    });
+    await did.attachEncryptionMethod();
 
     fsDriver = await FsStorageDriver.newInstance({
       filepath: credsFilepath,
-      fragment,
     });
     expect(fsDriver).toBeInstanceOf(FsStorageDriver);
   });

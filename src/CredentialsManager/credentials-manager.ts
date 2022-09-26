@@ -49,7 +49,6 @@ export class CredentialsManager {
   private async buildStore(props: IStorageDriverProps) {
     this.store = await buildStorageDriver({
       ...props,
-      fragment: this.fragment,
     });
   }
 

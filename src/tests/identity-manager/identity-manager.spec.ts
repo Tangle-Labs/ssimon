@@ -3,6 +3,7 @@ import { Credential, EncryptedData, Resolver } from "@iota/identity-wasm/node";
 import * as path from "path";
 import * as fs from "fs";
 import { IdentityAccount } from "../../IdentityAccount/identity-account";
+import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
 
 const testingFilepath = path.join(__dirname, "../testing-identity");
 const strongholdFilepath = path.join(__dirname, "../../../dist/");
@@ -43,7 +44,13 @@ describe("identity-manager", () => {
    */
 
   test("should create DID", async () => {
-    const identity = await identityManager?.createDid("test-1");
+    const identity = await identityManager?.createDid({
+      alias: "test-1",
+      store: {
+        type: Types.Fs,
+        options: { filepath: "./test" },
+      },
+    });
     expect(identity).toBeInstanceOf(IdentityAccount);
   });
 
@@ -52,7 +59,15 @@ describe("identity-manager", () => {
    */
 
   test("should throw error on duplicate alias", async () => {
-    await expect(identityManager?.createDid("test-1")).rejects.toThrowError();
+    await expect(
+      identityManager?.createDid({
+        alias: "test-1",
+        store: {
+          type: Types.Fs,
+          options: { filepath: "./test" },
+        },
+      })
+    ).rejects.toThrowError();
   });
 
   /**
@@ -110,7 +125,13 @@ describe("identity-manager", () => {
    */
 
   test("should sign a credential and revoke it", async () => {
-    const identity = await identityManager.createDid(String(Math.random()));
+    const identity = await identityManager.createDid({
+      alias: String(Math.random()),
+      store: {
+        type: Types.Fs,
+        options: { filepath: "./test" },
+      },
+    });
     await identity.attachSigningMethod("#signingmethod");
     const signedVc = await identity.credentials.create({
       keyIndex: 5,
@@ -142,8 +163,14 @@ describe("identity-manager", () => {
    */
 
   test("should attach encryption endpoint", async () => {
-    const did = await identityManager.createDid("encryption-did");
-    await did.attachEncryptionMethod("#encryption");
+    const did = await identityManager.createDid({
+      alias: "encryption-did",
+      store: {
+        type: Types.Fs,
+        options: { filepath: "./test" },
+      },
+    });
+    await did.attachEncryptionMethod();
   });
 
   /**
@@ -153,13 +180,9 @@ describe("identity-manager", () => {
   test("should encrypt and decrypt a message", async () => {
     const did = await identityManager.getIdentityByAlias("encryption-did");
     const plainText = "foo bar";
-    const encryptionFragment = "#encryption";
-    const encryptedData = await did.encryptData(plainText, encryptionFragment);
+    const encryptedData = await did.encryptData(plainText);
     expect(encryptedData).toBeInstanceOf(EncryptedData);
-    const decryptedData = await did.decryptData(
-      encryptedData,
-      encryptionFragment
-    );
+    const decryptedData = await did.decryptData(encryptedData);
     expect(decryptedData).toEqual(plainText);
   });
 });

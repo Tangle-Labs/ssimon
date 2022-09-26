@@ -13,11 +13,9 @@ const fsWriteFile = promisify(writeFile);
 export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
   filepath: PathLike;
   account: IdentityAccount;
-  fragment: Fragment;
 
   private constructor(options: FsOptions) {
     this.filepath = options.filepath;
-    this.fragment = options.fragment;
   }
 
   /**
@@ -87,9 +85,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     return Promise.all(
       (await this.getFileContents()).map(async (c) =>
         Credential.fromJSON(
-          JSON.parse(
-            await this.account.decryptData(c.credential, this.fragment)
-          )
+          JSON.parse(await this.account.decryptData(c.credential))
         )
       )
     );
@@ -106,7 +102,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     const cred = creds.find((c) => c.id === id);
     if (!cred) throw new Error("Credential not found");
     const credentialRaw = JSON.parse(
-      await this.account.decryptData(cred.credential, this.fragment)
+      await this.account.decryptData(cred.credential)
     );
     return Credential.fromJSON(credentialRaw);
   }
@@ -124,7 +120,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
         .filter((c) => c.type.includes(credType))
         .map(async (c) => {
           const credentialRaw = JSON.parse(
-            await this.account.decryptData(c.credential, this.fragment)
+            await this.account.decryptData(c.credential)
           );
           return Credential.fromJSON(credentialRaw);
         })
@@ -144,7 +140,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
         .filter((c) => c.issuer === issuer)
         .map(async (c) => {
           const credentialRaw = JSON.parse(
-            await this.account.decryptData(c.credential, this.fragment)
+            await this.account.decryptData(c.credential)
           );
           return Credential.fromJSON(credentialRaw);
         })
@@ -163,8 +159,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     if (credentialExists) throw new Error("credential already exists");
     const creds = await this.getFileContents();
     const encrypted = await this.account.encryptData(
-      JSON.stringify(cred.toJSON()),
-      this.fragment
+      JSON.stringify(cred.toJSON())
     );
     const storedCred = {
       id: cred.id(),

@@ -12,11 +12,9 @@ export class MongoStorageDriver
 {
   mongouri: string;
   account: IdentityAccount;
-  fragment: Fragment;
 
   private constructor(options: MongoOptions) {
     this.mongouri = options.mongouri;
-    this.fragment = options.fragment;
   }
 
   /**
@@ -47,9 +45,7 @@ export class MongoStorageDriver
     return Promise.all(
       (await StoredVc.find({})).map(async (c) => {
         return Credential.fromJSON(
-          JSON.parse(
-            await this.account.decryptData(c.credential, this.fragment)
-          )
+          JSON.parse(await this.account.decryptData(c.credential))
         );
       })
     );
@@ -65,9 +61,7 @@ export class MongoStorageDriver
     const foundCredRaw = await StoredVc.findOne({ id });
     if (!foundCredRaw) throw new Error("Credential Not found");
     return Credential.fromJSON(
-      JSON.parse(
-        await this.account.decryptData(foundCredRaw.credential, this.fragment)
-      )
+      JSON.parse(await this.account.decryptData(foundCredRaw.credential))
     );
   }
 
@@ -83,9 +77,7 @@ export class MongoStorageDriver
     return Promise.all(
       foundCredsRaw.map(async (c) => {
         return Credential.fromJSON(
-          JSON.parse(
-            await this.account.decryptData(c.credential, this.fragment)
-          )
+          JSON.parse(await this.account.decryptData(c.credential))
         );
       })
     );
@@ -103,9 +95,7 @@ export class MongoStorageDriver
     return Promise.all(
       foundCredsRaw.map(async (c) => {
         return Credential.fromJSON(
-          JSON.parse(
-            await this.account.decryptData(c.credential, this.fragment)
-          )
+          JSON.parse(await this.account.decryptData(c.credential))
         );
       })
     );
@@ -121,8 +111,7 @@ export class MongoStorageDriver
     const credentialExists = await StoredVc.findOne({ id: cred.id() });
     if (credentialExists) throw new Error("credential already exists");
     const encrypted = await this.account.encryptData(
-      JSON.stringify(cred.toJSON()),
-      this.fragment
+      JSON.stringify(cred.toJSON())
     );
     const storedCred = await StoredVc.create({
       id: cred.id(),
