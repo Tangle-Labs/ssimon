@@ -1,7 +1,7 @@
 import { readFile, writeFile, PathLike } from "fs";
 import { IStorageDriver } from "../../storage-driver.interface";
 import { Credential } from "@iota/identity-wasm/node";
-import { IFsDriverProps } from "./fs-driver.types";
+import { FsOptions } from "./fs-driver.types";
 import { promisify } from "util";
 import { IdentityAccount } from "../../../IdentityAccount/identity-account";
 import { IStoredVc } from "../storage-driver.types";
@@ -15,7 +15,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
   account: IdentityAccount;
   fragment: Fragment;
 
-  private constructor(options: IFsDriverProps) {
+  private constructor(options: FsOptions) {
     this.filepath = options.filepath;
     this.fragment = options.fragment;
   }
@@ -27,7 +27,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
    * @returns {Promise<FsStorageDriver>}
    */
 
-  static async newInstance(options: IFsDriverProps): Promise<FsStorageDriver> {
+  static async newInstance(options: FsOptions): Promise<FsStorageDriver> {
     const fsDriver = new FsStorageDriver(options);
     await this.instantiateFile(options);
     return fsDriver;
@@ -38,7 +38,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
    *
    * @returns {Promise<void>}
    */
-  private static async instantiateFile(options: IFsDriverProps): Promise<void> {
+  private static async instantiateFile(options: FsOptions): Promise<void> {
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     const fileData = await fsReadFile(options.filepath).catch((error: any) => {
       if (error.code !== "ENOENT") throw new Error(error);

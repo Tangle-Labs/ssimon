@@ -36,7 +36,6 @@ export interface IMongoProps {
  */
 
 export type StorageDriver = MongoStorageDriver | FsStorageDriver;
-
 export type IStorageDriverProps = IFsDriverProps | IMongoProps;
 
 /**

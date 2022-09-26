@@ -83,6 +83,7 @@ describe("identity-manager", () => {
       password: "password",
       managerAlias,
     });
+
     const identity = await loadedIdentityManager.getIdentityByAlias("main-did");
     const signedVc = await identity.credentials.create({
       keyIndex: 5,

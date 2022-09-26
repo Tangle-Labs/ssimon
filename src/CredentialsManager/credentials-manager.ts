@@ -17,7 +17,7 @@ import { IdentityAccount } from "../IdentityAccount/identity-account";
 import { buildStorageDriver } from "../StorageDriver/drivers/storage-driver";
 import {
   StorageDriver,
-  StorageDriverProps,
+  IStorageDriverProps,
 } from "../StorageDriver/drivers/storage-driver.types";
 import {
   ICreateCredentialProps,
@@ -46,7 +46,7 @@ export class CredentialsManager {
     this.buildStore(store);
   }
 
-  private async buildStore<T>(props: StorageDriverProps<T>) {
+  private async buildStore(props: IStorageDriverProps) {
     this.store = await buildStorageDriver({
       ...props,
       fragment: this.fragment,

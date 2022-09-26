@@ -19,12 +19,12 @@ import { Types } from "../StorageDriver/drivers/storage-driver.types.interface";
  * Utitlity class to bind wrapper methods to an Identity Instance
  */
 
-export class IdentityAccount extends CredentialsManager {
+export class IdentityAccount {
   account: Account;
   credentials: CredentialsManager;
 
   constructor(props: IIdentityAccountProps) {
-    super({
+    this.credentials = new CredentialsManager({
       account: props.account,
       revocationEndpoint: "#revocation-bitmap",
       store: {
