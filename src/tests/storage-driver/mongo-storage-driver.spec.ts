@@ -28,13 +28,14 @@ describe("mongo-storage-driver", () => {
       managerAlias: "mongo-id",
     });
 
+    const mongouri = process.env.MONGO_URI as string;
+
     did = await manager.createDid({
       alias: "new-did",
       store: {
         type: Types.Mongo,
         options: {
-          // @ts-ignore
-          mongouri: process.env.MONGO_URI,
+          mongouri,
         },
       },
     });

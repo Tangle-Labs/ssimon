@@ -196,5 +196,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
   /**
    * Cleanup
    */
-  async cleanup() {}
+  async cleanup() {
+    return;
+  }
 }
