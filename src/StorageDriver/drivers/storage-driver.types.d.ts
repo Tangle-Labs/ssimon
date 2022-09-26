@@ -9,13 +9,6 @@ import { MongoStorageDriver } from "./mongo-driver/mongo-driver";
 import { Types } from "./storage-driver.types.interface";
 
 /**
- * Props for `MongoStorageDriver`
- */
-interface MongoOptions {
-  mongouri: string;
-}
-
-/**
  * Combined type for FS Driver
  */
 export interface IFsProps {
