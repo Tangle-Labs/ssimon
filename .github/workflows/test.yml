@@ -24,5 +24,11 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Test
-        run: yarn test
+      - name: Test Core
+        run: yarn test -t "identity-manager"
+
+      - name: Test FS Driver
+        run: yarn test -t \"fs-storage-driver\"
+
+      - name: Test Mongo Driver
+        run: yarn test -t \"mongo-storage-driver\"

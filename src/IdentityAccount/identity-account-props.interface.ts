@@ -11,5 +11,5 @@ export interface IIdentityAccountProps {
   /**
    * store options
    */
-  store?: IStorageDriverProps;
+  store: IStorageDriverProps;
 }

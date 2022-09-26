@@ -1,4 +1,4 @@
-import { Issuer } from "@iota/identity-wasm/node";
+import { Account, EncryptedData, Issuer } from "@iota/identity-wasm/node";
 import { PathLike } from "fs";
 import { Fragment } from "../../identity-manager.types";
 import { IdentityAccount } from "../../IdentityAccount/identity-account";
@@ -37,6 +37,15 @@ export interface IMongoProps {
 
 export type StorageDriver = MongoStorageDriver | FsStorageDriver;
 export type IStorageDriverProps = IFsProps | IMongoProps;
+
+export type EncryptMethod = (
+  plainText: string,
+  account: Account
+) => Promise<EncryptedData>;
+export type DecryptMethod = (
+  encryptedData: EncryptedData | JSON | Record<string, unknown>,
+  account: Account
+) => Promise<string>;
 
 /**
  * Spec for a stored VC schema

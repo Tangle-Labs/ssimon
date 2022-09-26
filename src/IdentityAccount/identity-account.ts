@@ -5,15 +5,10 @@ import {
   MethodContent,
   MethodScope,
   RevocationBitmap,
-  AgreementInfo,
-  EncryptionAlgorithm,
-  CekAlgorithm,
-  EncryptedData,
   DID,
   Document,
 } from "@iota/identity-wasm/node";
 import { Fragment } from "../identity-manager.types";
-import { Types } from "../StorageDriver/drivers/storage-driver.types.interface";
 import {
   EncryptionFragment,
   RevocationFragment,
@@ -27,18 +22,14 @@ export class IdentityAccount {
   account: Account;
   credentials: CredentialsManager;
 
-  constructor(props: IIdentityAccountProps) {
-    this.credentials = new CredentialsManager({
+  static async build(props: IIdentityAccountProps) {
+    const identityAccount = new IdentityAccount();
+    identityAccount.credentials = await CredentialsManager.build({
       account: props.account,
-      revocationEndpoint: RevocationFragment,
-      store: {
-        type: Types.Mongo,
-        options: {
-          mongouri: "mongodb://localhost:27017",
-        },
-      },
+      store: props.store,
     });
-    this.account = props.account;
+    identityAccount.account = props.account;
+    return identityAccount;
   }
 
   /**
@@ -72,7 +63,7 @@ export class IdentityAccount {
     });
     const revocationBitmap = new RevocationBitmap();
     await this.account.createService({
-      fragment: "revocation-bitmap",
+      fragment: RevocationFragment,
       type: RevocationBitmap.type(),
       endpoint: revocationBitmap.toEndpoint(),
     });
@@ -93,83 +84,5 @@ export class IdentityAccount {
       content: MethodContent.GenerateX25519(),
     });
     await this.account.publish();
-  }
-
-  /**
-   * Encrypt data and return it
-   *
-   * @param {String} plainText - data to be encrypted
-   * @returns {Promise<EncryptedData>}
-   */
-
-  async encryptData(plainText: string): Promise<EncryptedData> {
-    const method = this.account.document().resolveMethod(EncryptionFragment);
-
-    if (!method) throw new Error("Method not found");
-    const publicKey = method.data().tryDecode();
-
-    const agreementInfo = new AgreementInfo(
-      new Uint8Array(0),
-      new Uint8Array(0),
-      new Uint8Array(0),
-      new Uint8Array(0)
-    );
-
-    const encryptionAlgorithm = EncryptionAlgorithm.A256GCM();
-
-    const cekAlgorithm = CekAlgorithm.EcdhEs(agreementInfo);
-    const message = Buffer.from(plainText);
-    const associatedData = Buffer.from("associatedData");
-
-    const encryptedData = await this.account
-      .encryptData(
-        message,
-        associatedData,
-        encryptionAlgorithm,
-        cekAlgorithm,
-        publicKey
-      )
-      .catch((err) => {
-        console.error(err);
-      });
-
-    if (!encryptedData) throw new Error("failed to encrypt data");
-    return encryptedData;
-  }
-
-  /**
-   * Decrypt the data
-   *
-   * @param {EncryptedData | JSON | Record<string, unknown>} encryptedData - data to decrypt
-   * @returns {Promise<string>}
-   */
-
-  async decryptData(
-    encryptedData: EncryptedData | JSON | Record<string, unknown>
-  ): Promise<string> {
-    encryptedData =
-      encryptedData instanceof EncryptedData
-        ? encryptedData
-        : EncryptedData.fromJSON(encryptedData);
-
-    const agreementInfo = new AgreementInfo(
-      new Uint8Array(0),
-      new Uint8Array(0),
-      new Uint8Array(0),
-      new Uint8Array(0)
-    );
-    const encryptionAlgorithm = EncryptionAlgorithm.A256GCM();
-
-    const cekAlgorithm = CekAlgorithm.EcdhEs(agreementInfo);
-    const decryptedData = await this.account.decryptData(
-      encryptedData,
-      encryptionAlgorithm,
-      cekAlgorithm,
-      EncryptionFragment
-    );
-
-    const plainText = new TextDecoder().decode(decryptedData);
-
-    return plainText;
   }
 }

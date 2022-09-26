@@ -1,6 +1,5 @@
-import { FsStorageDriver } from "../../StorageDriver/drivers/fs-driver/fs-driver";
 import { cred1, cred2 } from "./sample-creds";
-import { IdentityManager } from "../../";
+import { IdentityAccount, IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
 import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
@@ -20,7 +19,7 @@ tryUnlinkFile(credsFilepath);
 tryUnlinkFile(`${testingFilepath}/fs-id-config.json`);
 tryUnlinkFile(`${testingFilepath}/fs-id.stronghold`);
 
-let fsDriver: FsStorageDriver;
+let did: IdentityAccount;
 
 describe("fs-storage-driver", () => {
   test("should instantiate FsStorageDriver", async () => {
@@ -30,47 +29,44 @@ describe("fs-storage-driver", () => {
       managerAlias: "fs-id",
     });
 
-    const did = await manager.createDid({
+    did = await manager.createDid({
       alias: "new-did",
       store: {
         type: Types.Fs,
         options: {
-          filepath: "./test",
+          filepath: credsFilepath,
         },
       },
     });
     await did.attachEncryptionMethod();
-
-    fsDriver = await FsStorageDriver.newInstance({
-      filepath: credsFilepath,
-    });
-    expect(fsDriver).toBeInstanceOf(FsStorageDriver);
   });
 
   test("should save new credential", async () => {
-    await fsDriver.newCredential(cred1);
-    await fsDriver.newCredential(cred2);
+    await did.credentials.store.newCredential(cred1);
+    await did.credentials.store.newCredential(cred2);
   });
 
   test("should throw error on duplicate credential", async () => {
-    await expect(fsDriver.newCredential(cred1)).rejects.toThrowError();
+    await expect(
+      did.credentials.store.newCredential(cred1)
+    ).rejects.toThrowError();
   });
 
   test("should find credential by id", async () => {
     const id = cred2.id() as string;
-    const cred = await fsDriver.findById(id);
+    const cred = await did.credentials.store.findById(id);
     expect(cred2.toJSON()).toEqual(cred.toJSON());
   });
 
   test("should find all credentials by Type", async () => {
-    const creds = await fsDriver.findByCredentialType(
+    const creds = await did.credentials.store.findByCredentialType(
       "UniversityDegreeCredential"
     );
     expect(creds.length).toEqual(2);
   });
 
   test("should find 0 credentials by incorrect Type", async () => {
-    const creds = await fsDriver.findByCredentialType(
+    const creds = await did.credentials.store.findByCredentialType(
       "NotAUniversityDegreeCredential"
     );
     expect(creds.length).toEqual(0);
@@ -78,15 +74,15 @@ describe("fs-storage-driver", () => {
 
   test("should find credentials by issuer", async () => {
     const issuer = cred2.issuer() as string;
-    const creds = await fsDriver.findByIssuer(issuer);
+    const creds = await did.credentials.store.findByIssuer(issuer);
     expect(creds.length).toEqual(1);
   });
 
   test("should delete a credential by ID", async () => {
     const id = cred2.id() as string;
-    await fsDriver.delete(id);
-    const creds = await fsDriver.findAll();
+    await did.credentials.store.delete(id);
+    const creds = await did.credentials.store.findAll();
     expect(creds[0].toJSON()).toEqual(cred1.toJSON());
-    await expect(fsDriver.findById(id)).rejects.toThrow();
+    await expect(did.credentials.store.findById(id)).rejects.toThrow();
   });
 });

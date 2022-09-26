@@ -1,11 +1,10 @@
-import { MongoStorageDriver } from "../../StorageDriver/drivers/mongo-driver/mongo-driver";
 import { cred1, cred2 } from "./sample-creds";
 import { IdentityAccount, IdentityManager } from "../../";
 import * as path from "path";
 import * as fs from "fs";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
-import { DID } from "@iota/identity-wasm/node";
+import { StoredVc } from "../../StorageDriver/drivers/mongo-driver/stored-vc.schema";
 
 const testingFilepath = path.resolve(__dirname, "../../../dist/");
 
@@ -43,9 +42,10 @@ describe("mongo-storage-driver", () => {
       },
     });
     await did.attachEncryptionMethod();
+    await StoredVc.deleteMany({});
   });
 
-  test("should save new credential", async () => {
+  test("should save new credentials", async () => {
     await did.credentials.store.newCredential(cred1);
     await did.credentials.store.newCredential(cred2);
   });

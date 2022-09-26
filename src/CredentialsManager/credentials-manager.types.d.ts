@@ -18,14 +18,14 @@ export interface ICreateCredentialProps {
   type: string;
 
   /**
+   * Fragment to sign with
+   */
+  fragment: Fragment;
+
+  /**
    * DID Identifier of the recipient
    */
   recipientDid: string;
-
-  /**
-   * Frgament identifier of the method to be used to sign the credential
-   */
-  fragment: Fragment;
 
   /**
    * Body of the credential data to be signed
@@ -35,6 +35,5 @@ export interface ICreateCredentialProps {
 
 export interface ICredentialManagerProps {
   account: Account;
-  revocationEndpoint: Fragment;
   store: StorageDriverProps;
 }

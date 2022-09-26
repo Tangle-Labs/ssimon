@@ -1,18 +1,23 @@
 import { readFile, writeFile, PathLike } from "fs";
 import { IStorageDriver } from "../../storage-driver.interface";
-import { Credential } from "@iota/identity-wasm/node";
+import { Account, Credential } from "@iota/identity-wasm/node";
 import { FsOptions } from "./fs-driver.types";
 import { promisify } from "util";
 import { IdentityAccount } from "../../../IdentityAccount/identity-account";
-import { IStoredVc } from "../storage-driver.types";
-import { Fragment } from "../../../identity-manager.types";
+import {
+  DecryptMethod,
+  EncryptMethod,
+  IStoredVc,
+} from "../storage-driver.types";
 
 const fsReadFile = promisify(readFile);
 const fsWriteFile = promisify(writeFile);
 
 export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
   filepath: PathLike;
-  account: IdentityAccount;
+  encryptData: EncryptMethod;
+  decryptData: DecryptMethod;
+  account: Account;
 
   private constructor(options: FsOptions) {
     this.filepath = options.filepath;
@@ -25,8 +30,16 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
    * @returns {Promise<FsStorageDriver>}
    */
 
-  static async newInstance(options: FsOptions): Promise<FsStorageDriver> {
+  static async newInstance(
+    options: FsOptions,
+    encryptMethod: EncryptMethod,
+    decryptMethod: DecryptMethod,
+    account: Account
+  ): Promise<FsStorageDriver> {
     const fsDriver = new FsStorageDriver(options);
+    fsDriver.encryptData = encryptMethod;
+    fsDriver.decryptData = decryptMethod;
+    fsDriver.account = account;
     await this.instantiateFile(options);
     return fsDriver;
   }
@@ -57,11 +70,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
       throw new Error("FS ERROR: Unable to read file data");
     });
 
-    // I HAVE NO IDEA WHY THIS IS HAPPENING BUT REMOVING THIS CONSOLE LOG
-    // LEADS TO 4 UNIT TESTS FAILING :carloshuh:
-    console.log("");
-
-    return JSON.parse(fileData.toString());
+    return fileData.toString() !== "" ? JSON.parse(fileData.toString()) : [];
   }
 
   /**
@@ -85,7 +94,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     return Promise.all(
       (await this.getFileContents()).map(async (c) =>
         Credential.fromJSON(
-          JSON.parse(await this.account.decryptData(c.credential))
+          JSON.parse(await this.decryptData(c.credential, this.account))
         )
       )
     );
@@ -102,7 +111,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     const cred = creds.find((c) => c.id === id);
     if (!cred) throw new Error("Credential not found");
     const credentialRaw = JSON.parse(
-      await this.account.decryptData(cred.credential)
+      await this.decryptData(cred.credential, this.account)
     );
     return Credential.fromJSON(credentialRaw);
   }
@@ -120,7 +129,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
         .filter((c) => c.type.includes(credType))
         .map(async (c) => {
           const credentialRaw = JSON.parse(
-            await this.account.decryptData(c.credential)
+            await this.decryptData(c.credential, this.account)
           );
           return Credential.fromJSON(credentialRaw);
         })
@@ -140,7 +149,7 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
         .filter((c) => c.issuer === issuer)
         .map(async (c) => {
           const credentialRaw = JSON.parse(
-            await this.account.decryptData(c.credential)
+            await this.decryptData(c.credential, this.account)
           );
           return Credential.fromJSON(credentialRaw);
         })
@@ -158,8 +167,9 @@ export class FsStorageDriver implements IStorageDriver<Credential, IStoredVc> {
     const credentialExists = storedCredentials.find((c) => c.id === cred.id());
     if (credentialExists) throw new Error("credential already exists");
     const creds = await this.getFileContents();
-    const encrypted = await this.account.encryptData(
-      JSON.stringify(cred.toJSON())
+    const encrypted = await this.encryptData(
+      JSON.stringify(cred.toJSON()),
+      this.account
     );
     const storedCred = {
       id: cred.id(),

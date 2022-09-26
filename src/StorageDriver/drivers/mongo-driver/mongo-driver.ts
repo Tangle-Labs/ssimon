@@ -1,17 +1,21 @@
 import { IStorageDriver } from "../../storage-driver.interface";
-import { Credential } from "@iota/identity-wasm/node";
+import { Account, Credential } from "@iota/identity-wasm/node";
 import { MongoOptions } from "./mongo-driver.types";
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, mongo } from "mongoose";
 import { StoredVc } from "./stored-vc.schema";
-import { IdentityAccount } from "../../../IdentityAccount/identity-account";
-import { Fragment } from "../../../identity-manager.types";
-import { IStoredVc } from "../storage-driver.types";
+import {
+  DecryptMethod,
+  EncryptMethod,
+  IStoredVc,
+} from "../storage-driver.types";
 
 export class MongoStorageDriver
   implements IStorageDriver<Credential, Document>
 {
   mongouri: string;
-  account: IdentityAccount;
+  encryptData: EncryptMethod;
+  decryptData: DecryptMethod;
+  account: Account;
 
   private constructor(options: MongoOptions) {
     this.mongouri = options.mongouri;
@@ -24,8 +28,16 @@ export class MongoStorageDriver
    * @returns {Promise<FsStorageDriver>}
    */
 
-  static async newInstance(options: MongoOptions): Promise<MongoStorageDriver> {
+  static async newInstance(
+    options: MongoOptions,
+    encryptMethod: EncryptMethod,
+    decryptMethod: DecryptMethod,
+    account: Account
+  ): Promise<MongoStorageDriver> {
     const mongoDriver = new MongoStorageDriver(options);
+    mongoDriver.encryptData = encryptMethod;
+    mongoDriver.decryptData = decryptMethod;
+    mongoDriver.account = account;
     await this.connectMongoDb(options.mongouri);
     return mongoDriver;
   }
@@ -45,7 +57,7 @@ export class MongoStorageDriver
     return Promise.all(
       (await StoredVc.find({})).map(async (c) => {
         return Credential.fromJSON(
-          JSON.parse(await this.account.decryptData(c.credential))
+          JSON.parse(await this.decryptData(c.credential, this.account))
         );
       })
     );
@@ -61,7 +73,7 @@ export class MongoStorageDriver
     const foundCredRaw = await StoredVc.findOne({ id });
     if (!foundCredRaw) throw new Error("Credential Not found");
     return Credential.fromJSON(
-      JSON.parse(await this.account.decryptData(foundCredRaw.credential))
+      JSON.parse(await this.decryptData(foundCredRaw.credential, this.account))
     );
   }
 
@@ -77,7 +89,7 @@ export class MongoStorageDriver
     return Promise.all(
       foundCredsRaw.map(async (c) => {
         return Credential.fromJSON(
-          JSON.parse(await this.account.decryptData(c.credential))
+          JSON.parse(await this.decryptData(c.credential, this.account))
         );
       })
     );
@@ -95,7 +107,7 @@ export class MongoStorageDriver
     return Promise.all(
       foundCredsRaw.map(async (c) => {
         return Credential.fromJSON(
-          JSON.parse(await this.account.decryptData(c.credential))
+          JSON.parse(await this.decryptData(c.credential, this.account))
         );
       })
     );
@@ -110,8 +122,9 @@ export class MongoStorageDriver
   async newCredential(cred: Credential): Promise<Partial<IStoredVc>> {
     const credentialExists = await StoredVc.findOne({ id: cred.id() });
     if (credentialExists) throw new Error("credential already exists");
-    const encrypted = await this.account.encryptData(
-      JSON.stringify(cred.toJSON())
+    const encrypted = await this.encryptData(
+      JSON.stringify(cred.toJSON()),
+      this.account
     );
     const storedCred = await StoredVc.create({
       id: cred.id(),

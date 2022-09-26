@@ -6,6 +6,7 @@ import { IdentityAccount } from "../../IdentityAccount/identity-account";
 import { Types } from "../../StorageDriver/drivers/storage-driver.types.interface";
 
 const testingFilepath = path.join(__dirname, "../testing-identity");
+const credsFilepath = path.resolve(__dirname, "../../../dist/creds-im.json");
 const strongholdFilepath = path.join(__dirname, "../../../dist/");
 const strongholdPassword = "password";
 const managerAlias = "identity";
@@ -48,7 +49,7 @@ describe("identity-manager", () => {
       alias: "test-1",
       store: {
         type: Types.Fs,
-        options: { filepath: "./test" },
+        options: { filepath: credsFilepath },
       },
     });
     expect(identity).toBeInstanceOf(IdentityAccount);
@@ -64,7 +65,7 @@ describe("identity-manager", () => {
         alias: "test-1",
         store: {
           type: Types.Fs,
-          options: { filepath: "./test" },
+          options: { filepath: credsFilepath },
         },
       })
     ).rejects.toThrowError();
@@ -104,8 +105,8 @@ describe("identity-manager", () => {
       keyIndex: 5,
       id: "http://coodos.co/123",
       type: "UniversityDegreeCredential",
-      recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
       fragment: "#signing-method",
+      recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
       body: {
         testFieldOne: "asdf",
         testFieldTwo: "asdf",
@@ -129,16 +130,16 @@ describe("identity-manager", () => {
       alias: String(Math.random()),
       store: {
         type: Types.Fs,
-        options: { filepath: "./test" },
+        options: { filepath: credsFilepath },
       },
     });
-    await identity.attachSigningMethod("#signingmethod");
+    await identity.attachSigningMethod("#signing-method");
     const signedVc = await identity.credentials.create({
       keyIndex: 5,
       id: "http://coodos.co/123",
       type: "UniversityDegreeCredential",
+      fragment: "#signing-method",
       recipientDid: "did:iota:DjkCo13iQapZUj4ivuFxSza6iYmmvsnq3RhHEaqYUo5M",
-      fragment: "#signingmethod",
       body: {
         testFieldOne: "asdf...",
         testFieldTwo: "asdf...",
@@ -167,7 +168,7 @@ describe("identity-manager", () => {
       alias: "encryption-did",
       store: {
         type: Types.Fs,
-        options: { filepath: "./test" },
+        options: { filepath: credsFilepath },
       },
     });
     await did.attachEncryptionMethod();
@@ -180,9 +181,9 @@ describe("identity-manager", () => {
   test("should encrypt and decrypt a message", async () => {
     const did = await identityManager.getIdentityByAlias("encryption-did");
     const plainText = "foo bar";
-    const encryptedData = await did.encryptData(plainText);
+    const encryptedData = await did.credentials.encryptData(plainText);
     expect(encryptedData).toBeInstanceOf(EncryptedData);
-    const decryptedData = await did.decryptData(encryptedData);
+    const decryptedData = await did.credentials.decryptData(encryptedData);
     expect(decryptedData).toEqual(plainText);
   });
 });
