@@ -13,7 +13,7 @@ import {
   Document,
 } from "@iota/identity-wasm/node";
 import { Fragment } from "../identity-manager.types";
-import { Driver } from "../StorageDriver/drivers/storage-driver.types";
+import { Types } from "../StorageDriver/drivers/storage-driver.types.interface";
 
 /**
  * Utitlity class to bind wrapper methods to an Identity Instance
@@ -28,7 +28,7 @@ export class IdentityAccount extends CredentialsManager {
       account: props.account,
       revocationEndpoint: "#revocation-bitmap",
       store: {
-        type: Driver.Mongo,
+        type: Types.Mongo,
         options: {
           mongouri: "mongodb://localhost:27017",
         },

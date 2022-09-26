@@ -3,41 +3,32 @@ import { PathLike } from "fs";
 import { Fragment } from "../../identity-manager.types";
 import { IdentityAccount } from "../../IdentityAccount/identity-account";
 import { FsStorageDriver } from "./fs-driver/fs-driver";
+import { FsOptions } from "./fs-driver/fs-driver.types";
+import { MongoOptions } from "./mongo-driver/mongo-driver.types";
 import { MongoStorageDriver } from "./mongo-driver/mongo-driver";
-
-/**
- * Enum for currently implemented Drivers
- */
-
-enum Driver {
-  Mongo = MongoStorageDriver,
-  FS = FsStorageDriver,
-}
+import { Types } from "./storage-driver.types.interface";
 
 /**
  * Props for `MongoStorageDriver`
  */
-interface MongoProps {
+interface MongoOptions {
   mongouri: string;
 }
 
 /**
- * Props for `FsStorageDriver`
+ * Combined type for FS Driver
  */
-interface FsProps {
-  filepath: `${PathLike}.json`;
+export interface IFsProps {
+  type: Types.Fs;
+  options: FsOptions;
 }
 
 /**
- * Combined interface for props
+ * Combined type for FS Driver
  */
-export interface StorageDriverProps<K> {
-  type: Drivers;
-  options: K extends Driver.FS
-    ? FsProps
-    : K extends Driver.Mongo
-    ? MongoProps
-    : never;
+export interface IMongoProps {
+  type: Types.Mongo;
+  options: MongoOptions;
 }
 
 /**
@@ -45,6 +36,8 @@ export interface StorageDriverProps<K> {
  */
 
 export type StorageDriver = MongoStorageDriver | FsStorageDriver;
+
+export type IStorageDriverProps = IFsDriverProps | IMongoProps;
 
 /**
  * Spec for a stored VC schema

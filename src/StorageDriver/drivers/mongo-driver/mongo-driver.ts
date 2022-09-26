@@ -1,6 +1,6 @@
 import { IStorageDriver } from "../../storage-driver.interface";
 import { Credential } from "@iota/identity-wasm/node";
-import { IMongoDriverOptions } from "./mongo-driver.types";
+import { MongoOptions } from "./mongo-driver.types";
 import mongoose, { Document } from "mongoose";
 import { StoredVc } from "./stored-vc.schema";
 import { IdentityAccount } from "../../../IdentityAccount/identity-account";
@@ -14,7 +14,7 @@ export class MongoStorageDriver
   account: IdentityAccount;
   fragment: Fragment;
 
-  private constructor(options: IMongoDriverOptions) {
+  private constructor(options: MongoOptions) {
     this.mongouri = options.mongouri;
     this.fragment = options.fragment;
   }
@@ -26,9 +26,7 @@ export class MongoStorageDriver
    * @returns {Promise<FsStorageDriver>}
    */
 
-  static async newInstance(
-    options: IMongoDriverOptions
-  ): Promise<MongoStorageDriver> {
+  static async newInstance(options: MongoOptions): Promise<MongoStorageDriver> {
     const mongoDriver = new MongoStorageDriver(options);
     await this.connectMongoDb(options.mongouri);
     return mongoDriver;
