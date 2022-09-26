@@ -13,7 +13,7 @@ import { Types } from "./StorageDriver/drivers/storage-driver.types.interface";
 import { FsStorageDriver } from "./StorageDriver/drivers/fs-driver/fs-driver";
 import { MongoStorageDriver } from "./StorageDriver/drivers/mongo-driver/mongo-driver";
 import { clearConfigCache } from "prettier";
-import { encrypt } from "./utils/crypto";
+import { decrypt, encrypt } from "./utils/crypto";
 
 const fsReadFile = promisify(fs.readFile);
 const fsWriteFile = promisify(fs.writeFile);
@@ -219,6 +219,13 @@ export class IdentityManager {
     return await IdentityAccount.build({ account, store: identity.store });
   }
 
+  /**
+   * Create a backup of the identity manager with all of the identities stored
+   * in the same vault
+   *
+   * @param {string} password - password to stronghold
+   * @returns {Promise<IManagerBackup>}
+   */
   async createBackup(password: string): Promise<IManagerBackup> {
     const strongholdPath = path.resolve(
       __dirname,
@@ -242,5 +249,77 @@ export class IdentityManager {
       credentials: encrypt(JSON.stringify(credentials), password),
     };
     return backup;
+  }
+
+  /**
+   * Take a `IManagerBackup` and then use it to restore identity manager to a
+   * version and restore all the identities
+   */
+  static async restoreFromBackup(
+    backup: IManagerBackup,
+    password: string,
+    filepath: string,
+    managerAlias: string
+  ) {
+    const credAccounts =
+      decrypt(backup.credentials, password) !== ""
+        ? JSON.parse(decrypt(backup.credentials, password))
+        : [];
+    const configsRaw: IdentityConfig[] = JSON.parse(
+      decrypt(backup.config, password)
+    );
+    const stronghold = decrypt(backup.stronghold, password);
+
+    await fsWriteFile(
+      path.resolve(__dirname, filepath, `${managerAlias}.stronghold`),
+      stronghold
+    );
+
+    const configs = configsRaw.map((c) => {
+      return {
+        ...c,
+        store: {
+          type: Types.Fs,
+          options: {
+            filepath: `${c.alias}`,
+          },
+        },
+      };
+    });
+    await fsWriteFile(
+      path.resolve(__dirname, filepath, `${managerAlias}-config.json`),
+      JSON.stringify(configs)
+    );
+
+    const identityManager = new IdentityManager(
+      filepath,
+      password,
+      managerAlias
+    );
+    const strongholdPath = path.resolve(
+      __dirname,
+      filepath,
+      `${managerAlias}.stronghold`
+    );
+
+    const storage = await Stronghold.build(strongholdPath, password);
+
+    const autopublish = false;
+
+    const builder = new AccountBuilder({
+      storage,
+      clientConfig,
+      autopublish,
+    });
+
+    identityManager.builder = builder;
+
+    for (const credAccount of Object.keys(credAccounts)) {
+      const did = await identityManager.getIdentityByAlias(credAccount);
+      for (const cred of credAccounts[credAccount]) {
+        did.credentials.store.newCredential(cred);
+      }
+    }
+    return identityManager;
   }
 }

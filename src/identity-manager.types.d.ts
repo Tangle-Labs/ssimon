@@ -20,7 +20,7 @@ type HashedString = {
  * Interface for the backup props
  */
 export interface IManagerBackup {
-  stronghold: string | HashedString;
-  config: string | HashedString;
-  credentials: string | HashedString;
+  stronghold: HashedString;
+  config: HashedString;
+  credentials: HashedString;
 }
