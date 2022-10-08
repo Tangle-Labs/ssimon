@@ -96,7 +96,8 @@ test("should sign and verify a VC", async () => {
     signedVc
   );
 
-  expect(validationResult).toBeTruthy();
+  expect(validationResult.dvid).toBeTruthy();
+  expect(validationResult.vc).toBeTruthy();
 });
 
 /**

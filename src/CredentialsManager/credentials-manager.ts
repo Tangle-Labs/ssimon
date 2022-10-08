@@ -8,11 +8,11 @@ import {
   ResolvedDocument,
   Resolver,
   RevocationBitmap,
-} from '@iota/identity-wasm/node';
-import { resolveTxt } from 'dns/promises';
-import { clientConfig } from '../client-config';
-import { Fragment } from '../identity-manager.types';
-import { ICreateCredentialProps } from './create-credential-props.interface';
+} from "@iota/identity-wasm/node";
+import { resolveTxt } from "dns/promises";
+import { clientConfig } from "../client-config";
+import { Fragment } from "../identity-manager.types";
+import { ICreateCredentialProps } from "./create-credential-props.interface";
 
 /**
  * Credentials Manager is a helper class which contains all the abstractions for creating
@@ -105,23 +105,44 @@ export class CredentialsManager {
    * - Resolve DID contained in DNS record and validate the credential
    *
    * @param {Credential} signedVc
-   * @returns {IVerificationResult}
+   * @returns {{ vc: boolean, dvid: boolean }}
    */
 
-  async verifyCredential(signedVc: Credential): Promise<boolean> {
+  async verifyCredential(
+    signedVc: Credential
+  ): Promise<{ vc: boolean; dvid: boolean }> {
     const domain = signedVc
       .toJSON()
       .id.split(/(https|http):\/\//)[2]
-      .split('/')[0];
+      .split("/")[0];
     const txtRecords = await resolveTxt(domain);
     const didRecord = txtRecords.find((record) =>
-      record[0].includes('DVID.did=')
+      record[0].includes("DVID.did=")
     );
-    if (!didRecord) throw new Error('DVID Record not found');
-    const didTag = didRecord[0].split('DVID.did=')[1];
-    const resolvedDocument = await this.resolver.resolve(didTag);
+    if (!didRecord) throw new Error("DVID Record not found");
+    const didTag = didRecord[0].split("DVID.did=")[1];
+    const resolvedDocument = await this.resolver
+      .resolve(didTag)
+      .catch(() => null);
 
-    return this.isCredentialValid(signedVc, resolvedDocument);
+    if (!resolvedDocument) {
+      const resolvedIdentity = await this.resolver.resolve(
+        signedVc.issuer() as string
+      );
+      return {
+        dvid: false,
+        vc: await this.isCredentialValid(signedVc, resolvedIdentity),
+      };
+    }
+
+    const vcIntegrity = await this.isCredentialValid(
+      signedVc,
+      resolvedDocument
+    );
+    return {
+      dvid: true,
+      vc: vcIntegrity,
+    };
   }
 
   /**
