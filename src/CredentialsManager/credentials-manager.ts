@@ -143,10 +143,12 @@ export class CredentialsManager {
    * - Resolve DID contained in DNS record and validate the credential
    *
    * @param {Credential} signedVc
-   * @returns {IVerificationResult}
+   * @returns {{ vc: boolean, dvid: boolean}}
    */
 
-  async verifyCredential(signedVc: Credential): Promise<boolean> {
+  async verifyCredential(
+    signedVc: Credential
+  ): Promise<{ vc: boolean; dvid: boolean }> {
     const domain = signedVc
       .toJSON()
       .id.split(/(https|http):\/\//)[2]
@@ -157,9 +159,28 @@ export class CredentialsManager {
     );
     if (!didRecord) throw new Error("DVID Record not found");
     const didTag = didRecord[0].split("DVID.did=")[1];
-    const resolvedDocument = await this.resolver.resolve(didTag);
+    const resolvedDocument = await this.resolver
+      .resolve(didTag)
+      .catch(() => null);
 
-    return this.isCredentialValid(signedVc, resolvedDocument);
+    if (!resolvedDocument) {
+      const resolvedIdentity = await this.resolver.resolve(
+        signedVc.issuer() as string
+      );
+      return {
+        dvid: false,
+        vc: await this.isCredentialValid(signedVc, resolvedIdentity),
+      };
+    }
+
+    const vcIntegrity = await this.isCredentialValid(
+      signedVc,
+      resolvedDocument
+    );
+    return {
+      dvid: true,
+      vc: vcIntegrity,
+    };
   }
 
   /**

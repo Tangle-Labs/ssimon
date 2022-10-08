@@ -119,7 +119,8 @@ describe("identity-manager", () => {
       signedVc
     );
 
-    expect(validationResult).toBeTruthy();
+    expect(validationResult.dvid).toBeTruthy();
+    expect(validationResult.vc).toBeTruthy();
   });
 
   /**
