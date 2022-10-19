@@ -40,3 +40,8 @@ run();
 
 - see [API Reference](docs/api-ref.md)
 - see [examples](docs/examples)
+
+# What is Self-Sovereign Identity?
+
+In the sharing of digital data, SSI fosters trust. The user has discretion over what information, including personal information, is shared and with whom. For instance, the recipient can rapidly check the legality and authenticity of shared information electronically. For this, cryptographic tools like public-key cryptography, zero-knowledge proofs, and distributed ledger technologies are used. This makes it possible for parties who do not naturally trust each other to share verified digital information quickly and with a high level of trust.
+
