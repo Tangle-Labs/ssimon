@@ -11,6 +11,10 @@ DVID verification connects your DID to a record on a domain's DNS, inspired by t
 In the sharing of digital data, SSI fosters trust. The user has discretion over what information, including personal information, is shared and with whom. For instance, the recipient can rapidly check the legality and authenticity of shared information electronically. For this, cryptographic tools like public-key cryptography, zero-knowledge proofs, and distributed ledger technologies are used. This makes it possible for parties who do not naturally trust each other to share verified digital information quickly and with a high level of trust.
 
 
+
+![The Self-Sovereign Identity Ecosystem using Identity Manager](https://tanglelabs.io/wp-content/uploads/2022/09/image-2048x1445.png)
+
+
 ## Additional features include:
 
 DVID – Domain Verifiable Identity, making use of DNS and inspired by DKIM, DVID allows a verifiable credential to be signed and verified not only through its issuers DID, but also through its issuer’s domain through the use of DNS connected DID. Providing a built in human identifiable verification process.
