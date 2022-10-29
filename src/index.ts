@@ -1,5 +1,4 @@
 export * from "./identity-manager";
-export * from "./identity-manager-props.interface";
 export * from "./CredentialsManager/credentials-manager";
 export * from "./IdentityAccount/identity-account";
 export * from "./IdentityAccount/identity-account-props.interface";
@@ -9,3 +8,4 @@ export * from "./StorageDriver/drivers/storage-driver.types.interface";
 export * from "./StorageDriver/drivers/fs-driver/fs-driver";
 export * from "./StorageDriver/drivers/mongo-driver/mongo-driver";
 export * from "./StorageDriver/drivers/mongo-driver/stored-vc.schema";
+export * from "./utils";

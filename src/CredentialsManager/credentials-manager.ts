@@ -3,18 +3,12 @@ import {
   AgreementInfo,
   CekAlgorithm,
   Credential,
-  CredentialValidationOptions,
-  CredentialValidator,
   EncryptedData,
   EncryptionAlgorithm,
-  FailFast,
   ProofOptions,
   ResolvedDocument,
-  Resolver,
   RevocationBitmap,
 } from "@iota/identity-wasm/node";
-import { resolveTxt } from "dns/promises";
-import { Options } from "prettier";
 import { clientConfig } from "../client-config";
 import {
   EncryptionFragment,
@@ -27,6 +21,7 @@ import {
   StorageDriver,
   IStorageDriverProps,
 } from "../StorageDriver/drivers/storage-driver.types";
+import { isCredentialValid, verifyCredential } from "../utils";
 import {
   ICreateCredentialProps,
   ICredentialManagerProps,
@@ -38,7 +33,6 @@ import {
  */
 
 export class CredentialsManager {
-  resolver: Resolver;
   fragment: Fragment;
   account: Account;
   revocationEndpoint: Fragment;
@@ -46,14 +40,12 @@ export class CredentialsManager {
 
   private constructor(props: ICredentialManagerProps) {
     const { account } = props;
-    this.resolver = new Resolver();
     this.account = account;
     this.revocationEndpoint = RevocationFragment;
   }
 
   static async build(props: ICredentialManagerProps) {
     const credentialsManager = new CredentialsManager(props);
-    await credentialsManager.buildResolver();
     await credentialsManager.buildStore(props.store);
     return credentialsManager;
   }
@@ -69,8 +61,37 @@ export class CredentialsManager {
     );
   }
 
-  private async buildResolver() {
-    this.resolver = await Resolver.builder().clientConfig(clientConfig).build();
+  /**
+   * Validate a credential
+   *
+   * @param {Credential} signedVc - signed VC that needs to be validated
+   * @param {ResolvedDocument} issuerIdentity - account it was signed with
+   * @returns {Promise<boolean>}
+   */
+  async isCredentialValid(
+    signedVc: Credential,
+    issuerIdentity: ResolvedDocument
+  ): Promise<boolean> {
+    return isCredentialValid(signedVc, issuerIdentity);
+  }
+
+  /**
+   * DVID v0.2.0
+   * Domain Verifiable Identity is a module that allows you to verify the source of
+   * origin for a verifiable credential, here are the steps to validate with DVID v0.2.0
+   *
+   * - Parse the Document and look for the domain of origin
+   * - Lookup TXT records for the domain of origin
+   * - Resolve DID contained in DNS record and validate the credential
+   *
+   * @param {Credential} signedVc
+   * @returns {{ vc: boolean, dvid: boolean}}
+   */
+
+  async verifyCredential(
+    signedVc: Credential
+  ): Promise<{ vc: boolean; dvid: boolean }> {
+    return verifyCredential(signedVc);
   }
 
   /**
@@ -106,81 +127,6 @@ export class CredentialsManager {
     );
 
     return signedVc;
-  }
-
-  /**
-   * Validate a credential
-   *
-   * @param {Credential} signedVc - signed VC that needs to be validated
-   * @param {ResolvedDocument} issuerIdentity - account it was signed with
-   * @returns {Promise<boolean>}
-   */
-
-  async isCredentialValid(
-    signedVc: Credential,
-    issuerIdentity: ResolvedDocument
-  ): Promise<boolean> {
-    try {
-      CredentialValidator.validate(
-        signedVc,
-        issuerIdentity,
-        CredentialValidationOptions.default(),
-        FailFast.AllErrors
-      );
-    } catch (error) {
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * DVID v0.2.0
-   * Domain Verifiable Identity is a module that allows you to verify the source of
-   * origin for a verifiable credential, here are the steps to validate with DVID v0.2.0
-   *
-   * - Parse the Document and look for the domain of origin
-   * - Lookup TXT records for the domain of origin
-   * - Resolve DID contained in DNS record and validate the credential
-   *
-   * @param {Credential} signedVc
-   * @returns {{ vc: boolean, dvid: boolean}}
-   */
-
-  async verifyCredential(
-    signedVc: Credential
-  ): Promise<{ vc: boolean; dvid: boolean }> {
-    const domain = signedVc
-      .toJSON()
-      .id.split(/(https|http):\/\//)[2]
-      .split("/")[0];
-    const txtRecords = await resolveTxt(domain);
-    const didRecord = txtRecords.find((record) =>
-      record[0].includes("DVID.did=")
-    );
-    if (!didRecord) throw new Error("DVID Record not found");
-    const didTag = didRecord[0].split("DVID.did=")[1];
-    const resolvedDocument = await this.resolver
-      .resolve(didTag)
-      .catch(() => null);
-
-    if (!resolvedDocument) {
-      const resolvedIdentity = await this.resolver.resolve(
-        signedVc.issuer() as string
-      );
-      return {
-        dvid: false,
-        vc: await this.isCredentialValid(signedVc, resolvedIdentity),
-      };
-    }
-
-    const vcIntegrity = await this.isCredentialValid(
-      signedVc,
-      resolvedDocument
-    );
-    return {
-      dvid: true,
-      vc: vcIntegrity,
-    };
   }
 
   /**
