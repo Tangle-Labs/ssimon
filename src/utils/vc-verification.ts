@@ -61,7 +61,7 @@ export async function verifyCredential(
   );
   if (!didRecord) throw new Error("DVID Record not found");
   const didTag = didRecord[0].split("DVID.did=")[1];
-  const resolvedDocument = await this.resolver.resolve(didTag);
+  const resolvedDocument = await resolver.resolve(didTag);
 
   if (!resolvedDocument) {
     const resolvedIdentity = await resolver.resolve(
@@ -69,11 +69,11 @@ export async function verifyCredential(
     );
     return {
       dvid: false,
-      vc: await this.isCredentialValid(signedVc, resolvedIdentity),
+      vc: await isCredentialValid(signedVc, resolvedIdentity),
     };
   }
 
-  const vcIntegrity = await this.isCredentialValid(signedVc, resolvedDocument);
+  const vcIntegrity = await isCredentialValid(signedVc, resolvedDocument);
   return {
     dvid: true,
     vc: vcIntegrity,
