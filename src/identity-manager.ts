@@ -1,18 +1,19 @@
 import { AccountBuilder, DID } from "@iota/identity-wasm/node";
 import { Stronghold } from "@iota/identity-stronghold-nodejs";
-import { IIdentityManagerProps } from "./identity-manager-props.interface";
-import { IdentityConfig } from "./identity-config.type";
 import { promisify } from "util";
 import { clientConfig } from "./client-config";
 import { IdentityAccount } from "./IdentityAccount/identity-account";
 import * as fs from "fs";
 import * as path from "path";
-import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
-import { ICreateDidProps, IManagerBackup } from "./identity-manager.types";
+import {
+  ICreateDidProps,
+  IManagerBackup,
+  IIdentityManagerProps,
+  IdentityConfig,
+} from "./identity-manager.types";
 import { Types } from "./StorageDriver/drivers/storage-driver.types.interface";
 import { FsStorageDriver } from "./StorageDriver/drivers/fs-driver/fs-driver";
 import { MongoStorageDriver } from "./StorageDriver/drivers/mongo-driver/mongo-driver";
-import { clearConfigCache } from "prettier";
 import { decrypt, encrypt } from "./utils/crypto";
 
 const fsReadFile = promisify(fs.readFile);

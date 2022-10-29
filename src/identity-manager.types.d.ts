@@ -1,4 +1,13 @@
 import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
+import { DID, Document } from "@iota/identity-wasm/node";
+import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
+
+export type IdentityConfig = {
+  alias: string;
+  document: Document;
+  did: DID;
+  store: IStorageDriverProps;
+};
 
 /**
  * Fragment type for IOTA Identity Fragments
@@ -23,4 +32,22 @@ export interface IManagerBackup {
   stronghold: HashedString;
   config: HashedString;
   credentials: HashedString;
+}
+
+export interface IIdentityManagerProps {
+  /**
+   * Filepath to store stronghold file at
+   */
+  filepath: string;
+
+  /**
+   * Password for the stronghold file
+   */
+  password: string;
+
+  /**
+   * Identity Manager alias, alias will be used to create the stronghold file
+   * and config
+   */
+  managerAlias: string;
 }
