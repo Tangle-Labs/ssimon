@@ -13,19 +13,21 @@
     "@types/jsdoc-to-markdown": "^7.0.3"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc; copyfiles -u 1 \"src/**/*.d.ts\" dist;",
     "test": "jest",
     "coverage": "jest --coverage",
     "lint": "eslint . --cache",
     "format": "prettier -w \"**/*.{ts,js,json,scss,css}\"",
     "format-check": "prettier -c \"src/**{ts,js,json,scss,css}\"",
-    "semantic-release": "semantic-release --branches main"
+    "semantic-release": "semantic-release --branches main",
+    "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist"
   },
   "devDependencies": {
     "@types/jest": "^28.1.4",
     "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.3",
     "@typescript-eslint/parser": "^5.30.3",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.19.0",
     "jest": "^28.1.2",
     "jsdoc-to-markdown": "^7.1.1",
