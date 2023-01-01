@@ -189,7 +189,12 @@ export class IdentityManager {
 
     const storeCopy = {
       ...store,
-      type: Types.Fs ? "FS" : store.type === Types.Mongo ? "Mongo" : store.type,
+      type:
+        store.type === Types.Fs
+          ? "FS"
+          : store.type === Types.Mongo
+          ? "Mongo"
+          : store.type,
     };
     identities = [
       ...identities,
