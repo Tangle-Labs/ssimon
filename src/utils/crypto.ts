@@ -8,7 +8,7 @@ const iv = crypto.randomBytes(16);
  *
  * @param {string} text - plaintext to encrypt
  * @param {string} password - ciphertext to encrypt credentials with
- * @returns
+ * @returns {{ iv: string, content: string }}
  */
 export const encrypt = (text: string, password: string) => {
   const key = crypto
@@ -30,7 +30,7 @@ export const encrypt = (text: string, password: string) => {
  *
  * @param {{ iv: string, content: string }} hash - plaintext to encrypt
  * @param {string} password - ciphertext to encrypt credentials with
- * @returns
+ * @returns {string}
  */
 export const decrypt = (
   hash: { iv: string; content: string },
