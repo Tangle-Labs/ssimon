@@ -1,10 +1,9 @@
 import { AccountBuilder, DID } from "@iota/identity-wasm/node";
 import { Stronghold } from "@iota/identity-stronghold-nodejs";
-import { promisify } from "util";
 import { clientConfig } from "./client-config";
 import { IdentityAccount } from "./IdentityAccount/identity-account";
-import * as fs from "fs";
 import * as path from "path";
+import { readFile, writeFile } from "fs/promises";
 import {
   ICreateDidProps,
   IManagerBackup,
@@ -15,9 +14,7 @@ import { Types } from "./StorageDriver/drivers/storage-driver.types.interface";
 import { FsStorageDriver } from "./StorageDriver/drivers/fs-driver/fs-driver";
 import { MongoStorageDriver } from "./StorageDriver/drivers/mongo-driver/mongo-driver";
 import { decrypt, encrypt } from "./utils/crypto";
-
-const fsReadFile = promisify(fs.readFile);
-const fsWriteFile = promisify(fs.writeFile);
+import { ConfigAdapter } from "./Adapters/ConfigAdapter";
 
 /**
  * IdentityManager is a utility class which handles management of secrets and
@@ -30,6 +27,7 @@ export class IdentityManager {
   filepath: string;
   password: string;
   managerAlias: string;
+  configAdapter: ConfigAdapter;
 
   /**
    * Constructor to create an instance of the class
@@ -41,11 +39,13 @@ export class IdentityManager {
   private constructor(
     filepath: string,
     password: string,
-    managerAlias: string
+    managerAlias: string,
+    configAdapter: typeof ConfigAdapter = ConfigAdapter
   ) {
     this.filepath = filepath;
     this.password = password;
     this.managerAlias = managerAlias;
+    this.configAdapter = new configAdapter(this.filepath, this.managerAlias);
   }
 
   /**
@@ -92,15 +92,6 @@ export class IdentityManager {
    * @returns {Promise<IdentityConfig[]>}
    */
 
-  private async getIdentityConfig(): Promise<IdentityConfig[]> {
-    const identityPath = path.resolve(
-      __dirname,
-      this.filepath,
-      `${this.managerAlias}-config.json`
-    );
-    return JSON.parse((await fsReadFile(identityPath)).toString());
-  }
-
   /**
    * Get config of a did by the did tag
    *
@@ -108,7 +99,7 @@ export class IdentityManager {
    * @returns {Promise<IdentityConfig>}
    */
   private async getIdentityConfigByDid(did: DID): Promise<IdentityConfig> {
-    const configs = await this.getIdentityConfig();
+    const configs = await this.configAdapter.getIdentityConfig();
     const config = configs.find((c: IdentityConfig) => c.did === did);
     config.store.type =
       config.store.type === "FS"
@@ -129,7 +120,7 @@ export class IdentityManager {
   private async getIdentityConfigByAlias(
     alias: string
   ): Promise<IdentityConfig> {
-    const configs = await this.getIdentityConfig();
+    const configs = await this.configAdapter.getIdentityConfig();
     const config = configs.find((c: IdentityConfig) => c.alias === alias);
     config.store.type =
       config.store.type === "FS"
@@ -173,7 +164,7 @@ export class IdentityManager {
       `${this.managerAlias}-config.json`
     );
     try {
-      identities = await this.getIdentityConfig();
+      identities = await this.configAdapter.getIdentityConfig();
       const aliasExists = identities.find(
         (i: IdentityConfig) => i.alias === alias
       );
@@ -196,16 +187,13 @@ export class IdentityManager {
           ? "Mongo"
           : store.type,
     };
-    identities = [
-      ...identities,
-      {
-        alias,
-        document,
-        did,
-        store: storeCopy,
-      },
-    ];
-    await fsWriteFile(identityPath, JSON.stringify(identities)).catch(() => {
+    const identity = {
+      alias,
+      document,
+      did,
+      store: storeCopy,
+    };
+    await this.configAdapter.saveIdentityConfig(identity).catch(() => {
       throw new Error("Unable to write IdentityConfig");
     });
     return await IdentityAccount.build({ account, store });
@@ -239,8 +227,8 @@ export class IdentityManager {
       `${this.managerAlias}.stronghold`
     );
 
-    const stronghold = (await fsReadFile(strongholdPath)).toString();
-    const config = await this.getIdentityConfig();
+    const stronghold = (await readFile(strongholdPath)).toString();
+    const config = await this.configAdapter.getIdentityConfig();
     const credentials = await Promise.all(
       config.map(async (config: IdentityConfig) => {
         const identity = await this.getIdentityByAlias(config.alias);
@@ -276,7 +264,7 @@ export class IdentityManager {
     );
     const stronghold = decrypt(backup.stronghold, password);
 
-    await fsWriteFile(
+    await writeFile(
       path.resolve(__dirname, filepath, `${managerAlias}.stronghold`),
       stronghold
     );
@@ -292,7 +280,7 @@ export class IdentityManager {
         },
       };
     });
-    await fsWriteFile(
+    await writeFile(
       path.resolve(__dirname, filepath, `${managerAlias}-config.json`),
       JSON.stringify(configs)
     );
