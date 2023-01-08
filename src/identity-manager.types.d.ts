@@ -1,6 +1,7 @@
 import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
 import { DID, Document } from "@iota/identity-wasm/node";
 import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
+import { ConfigAdapter } from "./Adapters/ConfigAdapter";
 
 export type IdentityConfig = {
   alias: string;
@@ -50,4 +51,9 @@ export interface IIdentityManagerProps {
    * and config
    */
   managerAlias: string;
+
+  /**
+   * Adapter for the identity config
+   */
+  configAdapter?: typeof ConfigAdapter;
 }

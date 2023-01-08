@@ -15,6 +15,7 @@ import { FsStorageDriver } from "./StorageDriver/drivers/fs-driver/fs-driver";
 import { MongoStorageDriver } from "./StorageDriver/drivers/mongo-driver/mongo-driver";
 import { decrypt, encrypt } from "./utils/crypto";
 import { ConfigAdapter } from "./Adapters/ConfigAdapter";
+import { config } from "process";
 
 /**
  * IdentityManager is a utility class which handles management of secrets and
@@ -59,12 +60,13 @@ export class IdentityManager {
   static async newInstance(
     props: IIdentityManagerProps
   ): Promise<IdentityManager> {
-    const { filepath, password, managerAlias } = props;
+    const { filepath, password, managerAlias, configAdapter } = props;
 
     const identityManager = new IdentityManager(
       filepath,
       password,
-      managerAlias
+      managerAlias,
+      configAdapter
     );
     const strongholdPath = path.resolve(
       __dirname,
