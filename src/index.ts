@@ -8,4 +8,5 @@ export * from "./StorageDriver/drivers/storage-driver.types.interface";
 export * from "./StorageDriver/drivers/fs-driver/fs-driver";
 export * from "./StorageDriver/drivers/mongo-driver/mongo-driver";
 export * from "./StorageDriver/drivers/mongo-driver/stored-vc.schema";
+export * from "./Adapters/ConfigAdapter";
 export * from "./utils";
