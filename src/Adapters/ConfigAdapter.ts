@@ -23,6 +23,7 @@ export class ConfigAdapter {
       this.identityPath,
       JSON.stringify([...identities, identity])
     );
+    console.log(this.getIdentityConfig, identity);
     return identity;
   }
 }

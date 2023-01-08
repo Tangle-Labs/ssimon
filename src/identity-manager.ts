@@ -45,7 +45,7 @@ export class IdentityManager {
     this.filepath = filepath;
     this.password = password;
     this.managerAlias = managerAlias;
-    this.configAdapter = new configAdapter(this.filepath, this.managerAlias);
+    this.configAdapter = new configAdapter(filepath, managerAlias);
   }
 
   /**
