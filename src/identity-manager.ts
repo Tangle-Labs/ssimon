@@ -163,20 +163,14 @@ export class IdentityManager {
       this.filepath,
       `${this.managerAlias}-config.json`
     );
-    try {
-      identities = await this.configAdapter.getIdentityConfig();
-      const aliasExists = identities.find(
-        (i: IdentityConfig) => i.alias === alias
-      );
-      if (aliasExists) {
-        throw new Error(`Alias \`${alias}\` already in use`);
-      }
-      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.code !== "ENOENT") {
-        throw new Error(error);
-      }
+    identities = await this.configAdapter.getIdentityConfig();
+    const aliasExists = identities.find(
+      (i: IdentityConfig) => i.alias === alias
+    );
+    if (aliasExists) {
+      throw new Error(`Alias \`${alias}\` already in use`);
     }
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 
     const storeCopy = {
       ...store,

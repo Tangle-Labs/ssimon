@@ -14,7 +14,10 @@ export class ConfigAdapter {
   }
 
   async getIdentityConfig(): Promise<IdentityConfig[]> {
-    return JSON.parse((await readFile(this.identityPath)).toString());
+    const rawFileContent = await readFile(this.identityPath).catch((e) => {
+      if (e.code === "ENOENT") return Buffer.from("[]");
+    });
+    return JSON.parse(rawFileContent.toString());
   }
 
   async saveIdentityConfig(identity: IdentityConfig): Promise<IdentityConfig> {
@@ -23,7 +26,6 @@ export class ConfigAdapter {
       this.identityPath,
       JSON.stringify([...identities, identity])
     );
-    console.log(this.getIdentityConfig, identity);
     return identity;
   }
 }
