@@ -8,8 +8,6 @@
   "author": "Merul <merul@tanglelabs.io>",
   "license": "GPL-2.0",
   "dependencies": {
-    "@iota/identity-stronghold-nodejs": "^0.6.0",
-    "@iota/identity-wasm": "^0.6.0",
     "@types/jsdoc-to-markdown": "^7.0.3"
   },
   "scripts": {
