@@ -1,53 +1,23 @@
-import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
-import { DID, Document } from "@iota/identity-wasm/node";
-import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
-import { ConfigAdapter } from "./Adapters/ConfigAdapter";
+import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
+import { NetworkAdapter } from "./NetworkAdapter/index.types";
 
 export type IdentityConfig = {
   alias: string;
-  document: Document;
-  did: DID;
-  store: IStorageDriverProps;
+  did: string;
+  document: Record<string, any>;
+  store: Record<string, any>;
 };
 
-export interface ICreateDidProps {
-  alias: string;
-  store: IStorageDriverProps;
-}
-
-type HashedString = {
-  iv: string;
-  content: string;
+export type IdentityManagerOptions = {
+  adapter: typeof NetworkAdapter;
 };
 
-/**
- * Interface for the backup props
- */
-export interface IManagerBackup {
-  stronghold: HashedString;
-  config: HashedString;
-  credentials: HashedString;
-}
+export declare class IdentityManagerSpec {
+  networkAdapter: NetworkAdapter;
 
-export interface IIdentityManagerProps {
-  /**
-   * Filepath to store stronghold file at
-   */
-  filepath: string;
+  public static async build(): Promise<IdentityManager>;
 
-  /**
-   * Password for the stronghold file
-   */
-  password: string;
+  public getDid(props: Record<string, unknown>): Promise<IdentityAccount>;
 
-  /**
-   * Identity Manager alias, alias will be used to create the stronghold file
-   * and config
-   */
-  managerAlias: string;
-
-  /**
-   * Adapter for the identity config
-   */
-  configAdapter?: typeof ConfigAdapter;
+  public createDid(...props: any[]): Promise<IdentityAccount>;
 }
