@@ -23,13 +23,20 @@ export class IdentityManager<T extends IdentityAccount>
     return manager;
   }
 
-  public getDid(document: Record<string, unknown>): Promise<IdentityAccount> {
-    return this.networkAdapter.deserializeDid(document);
+  public getDid(props: {
+    did: string;
+    alias?: string;
+  }): Promise<IdentityAccount> {
+    throw new Error("not implemented yet");
+    // return this.networkAdapter.deserializeDid();
   }
 
   public async createDid(...props: any[]): Promise<IdentityAccount> {
-    const { identity } = await this.networkAdapter.createDid();
+    const createdDid = await this.networkAdapter.createDid();
+    console.log(createdDid.identity.getDid());
+    const dupeDid = await this.networkAdapter.createDid(createdDid.seed);
+    console.log(dupeDid.identity.getDid());
 
-    return identity;
+    return createdDid.identity;
   }
 }
