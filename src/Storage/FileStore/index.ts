@@ -36,11 +36,15 @@ export class FileStorage<T extends IdentityConfig>
     }
   }
 
+  private async _writeFileContents(data: Record<string, any>) {
+    const encrypted = encryptWithAES(JSON.stringify(data), this.password);
+    await writeFile(this.filepath, encrypted);
+  }
+
   public async create(body: T): Promise<T> {
     const entities = await this._getFileContents();
     const data = [...entities, body];
-    const encrypted = encryptWithAES(JSON.stringify(data), this.password);
-    await writeFile(this.filepath, encrypted);
+    await this._writeFileContents(data);
     return body;
   }
 
@@ -70,11 +74,45 @@ export class FileStorage<T extends IdentityConfig>
     });
   }
 
-  public findByIdAndDelete(id: string): Promise<T> {
-    throw new Error("Method not implemented.");
+  public async findOneAndDelete(searchParams: Partial<T>): Promise<T> {
+    const entities = await this._getFileContents();
+    const match = await this.findOne(searchParams);
+    if (!match) throw new Error("DID not found");
+    const filtered = entities.filter((e) => {
+      let matches = 0;
+      for (const key of Object.keys(searchParams)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (e[key] === options[key]) matches++;
+      }
+      return matches !== Object.keys(searchParams).length;
+    });
+    await this._writeFileContents(filtered);
+    return match;
   }
 
-  public findByIdAndUpdate(id: string, body: Partial<T>): Promise<T> {
-    throw new Error("Method not implemented.");
+  public async findOneAndUpdate(
+    searchParams: Partial<T>,
+    body: Partial<T>
+  ): Promise<T> {
+    const entities = await this._getFileContents();
+    const match = await this.findOne(searchParams);
+    if (!match) throw new Error("DID not found");
+    const filtered = entities.filter((e) => {
+      let matches = 0;
+      for (const key of Object.keys(searchParams)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (e[key] === options[key]) matches++;
+      }
+      return matches !== Object.keys(searchParams).length;
+    });
+    for (const key of Object.keys(body)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      match[key] = body[key] ?? match[key];
+    }
+    await this._writeFileContents([...filtered, match]);
+    return match;
   }
 }
