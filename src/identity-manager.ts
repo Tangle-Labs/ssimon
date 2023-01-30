@@ -17,10 +17,10 @@ export class IdentityManager<T extends IdentityAccount>
   public static async build(
     options: IdentityManagerOptions<StorageSpec<any, any>>
   ) {
-    const { adapter, storage } = options;
+    const { adapter, storage, password } = options;
     const manager = new IdentityManager();
     manager.networkAdapter = await adapter.build();
-    manager.storage = await storage.store.build(storage.props);
+    manager.storage = await storage.store.build({ ...storage.props, password });
     return manager;
   }
 
