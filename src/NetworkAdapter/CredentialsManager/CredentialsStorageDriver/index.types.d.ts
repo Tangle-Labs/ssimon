@@ -1,36 +1,36 @@
-export interface IStorageDriver<T, K> {
+export declare class CredentialsStorageDriverSpec<T, K> {
   /**
    * Find and return all instanstances of Credentiaks
    */
-  findAll: () => Promise<T[]>;
+  findAll(): Promise<T[]>;
 
   /**
    * Find and return the first match with a similar partial
    */
-  findById: (id: string) => Promise<T>;
+  findById(id: string): Promise<T>;
 
   /**
    * Find by credential subject, return all matches
    */
-  findByCredentialType: (credType: string) => Promise<T[]>;
+  findByCredentialType(credType: string): Promise<T[]>;
 
   /**
    * Find by issuer, return all matches
    */
-  findByIssuer: (issuer: string) => Promise<T[]>;
+  findByIssuer(issuer: string): Promise<T[]>;
 
   /**
    * Save a new credential
    */
-  newCredential: (data: T) => Promise<Partial<K>>;
+  newCredential(data: T): Promise<Partial<K>>;
 
   /**
    * Delete the first entry that matches the Identifier
    */
-  delete: (id: string) => Promise<void>;
+  delete(id: string): Promise<void>;
 
   /**
    * Cleanup function
    */
-  cleanup: () => Promise<void>;
+  cleanup(): Promise<void>;
 }

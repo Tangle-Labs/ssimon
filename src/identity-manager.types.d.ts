@@ -1,5 +1,6 @@
 import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
 import { NetworkAdapter } from "./NetworkAdapter/index.types";
+import { StorageSpec } from "./Storage/index.types";
 
 export type IdentityConfig = {
   alias: string;
@@ -8,8 +9,12 @@ export type IdentityConfig = {
   store: Record<string, any>;
 };
 
-export type IdentityManagerOptions = {
+export type IdentityManagerOptions<T extends StorageSpec> = {
   adapter: typeof NetworkAdapter;
+  storage: {
+    store: typeof T;
+    props: any;
+  };
 };
 
 export declare class IdentityManagerSpec {
@@ -17,7 +22,10 @@ export declare class IdentityManagerSpec {
 
   public static async build(): Promise<IdentityManager>;
 
-  public getDid(props: Record<string, unknown>): Promise<IdentityAccount>;
+  public getDid(props: {
+    did?: string;
+    alias?: string;
+  }): Promise<IdentityAccount>;
 
   public createDid(...props: any[]): Promise<IdentityAccount>;
 }
