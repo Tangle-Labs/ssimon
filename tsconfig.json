@@ -6,7 +6,8 @@
     "outDir": "./dist",
     "noImplicitAny": true,
     "declaration": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "esModuleInterop": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "src/tests"]

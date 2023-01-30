@@ -5,7 +5,7 @@ export declare class IdentityAccount {
 
   public static async build(...props: any[]): Promise<IdentityAccount>;
 
-  public async getDid(): Promise<string>;
+  public getDid(): string;
 
-  public async getDocument(): Promise<Record<string, any>>;
+  public getDocument(): Record<string, any>;
 }

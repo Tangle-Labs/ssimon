@@ -13,10 +13,13 @@ export class FileStorage<T extends IdentityConfig>
   }
 
   public static async build(props: IFileStoreOptions) {
+    const store = new FileStorage();
     await readFile(props.filepath).catch(async (err) => {
       if (!(err.code === "ENOENT")) throw new Error("unable to read file");
       writeFile(props.filepath, JSON.stringify([]));
     });
+    store.filepath = props.filepath;
+    return store;
   }
 
   private async _getFileContents(): Promise<T[]> {

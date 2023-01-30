@@ -1,4 +1,5 @@
 import {
+  CreateDidProps,
   IdentityConfig,
   IdentityManagerOptions,
   IdentityManagerSpec,
@@ -23,20 +24,31 @@ export class IdentityManager<T extends IdentityAccount>
     return manager;
   }
 
-  public getDid(props: {
-    did: string;
+  public async getDid(props: {
+    did?: string;
     alias?: string;
   }): Promise<IdentityAccount> {
-    throw new Error("not implemented yet");
-    // return this.networkAdapter.deserializeDid();
+    const config = await this.storage.findOne(props);
+    if (!config) throw new Error("Unable to find DID");
+    const { identity } = await this.networkAdapter.deserializeDid(config);
+    return identity;
   }
 
-  public async createDid(...props: any[]): Promise<IdentityAccount> {
-    const createdDid = await this.networkAdapter.createDid();
-    console.log(createdDid.identity.getDid());
-    const dupeDid = await this.networkAdapter.createDid(createdDid.seed);
-    console.log(dupeDid.identity.getDid());
+  public async createDid(props: CreateDidProps): Promise<IdentityAccount> {
+    if (await this.storage.findOne({ alias: props.alias }))
+      throw new Error("Alias already exists");
+    const { identity, seed } = await this.networkAdapter.createDid(props.seed);
+    const config: IdentityConfig = {
+      did: identity.getDid(),
+      document: identity.getDocument(),
+      alias: props.alias,
+      store: {},
+      seed,
+    };
+    if (await this.storage.findOne({ did: config.did }))
+      throw new Error("Did already exists");
+    await this.storage.create(config);
 
-    return createdDid.identity;
+    return identity;
   }
 }

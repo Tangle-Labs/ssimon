@@ -10,8 +10,14 @@ export type IdentityConfig = {
   seed: string;
 };
 
+export type CreateDidProps = {
+  alias: string;
+  seed?: string;
+};
+
 export type IdentityManagerOptions<T extends StorageSpec> = {
   adapter: typeof NetworkAdapter;
+  password: string;
   storage: {
     store: typeof T;
     props: any;
