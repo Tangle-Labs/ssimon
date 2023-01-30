@@ -28,8 +28,8 @@ export class IdentityManager<T extends IdentityAccount>
   }
 
   public async createDid(...props: any[]): Promise<IdentityAccount> {
-    const did = await this.networkAdapter.createDid();
+    const { identity } = await this.networkAdapter.createDid();
 
-    return did;
+    return identity;
   }
 }

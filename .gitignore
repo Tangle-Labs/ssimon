@@ -6,4 +6,4 @@ yarn-error.log
 .DS_Store
 iota-adapter
 *.testfile
-test.ts
+src/test.ts
