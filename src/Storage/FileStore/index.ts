@@ -8,7 +8,9 @@ export class FileStorage<T extends IdentityConfig>
 {
   filepath: string;
 
-  private constructor() {}
+  private constructor() {
+    null;
+  }
 
   public static async build(props: IFileStoreOptions) {
     await readFile(props.filepath).catch(async (err) => {
@@ -34,6 +36,7 @@ export class FileStorage<T extends IdentityConfig>
     return entities.find((e) => {
       let matches = 0;
       for (const key of Object.keys(options)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (e[key] === options[key]) matches++;
       }
@@ -46,6 +49,7 @@ export class FileStorage<T extends IdentityConfig>
     return entities.filter((e) => {
       let matches = 0;
       for (const key of Object.keys(options)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (e[key] === options[key]) matches++;
       }
