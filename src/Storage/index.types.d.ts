@@ -7,7 +7,10 @@ export declare class StorageSpec<T, K> {
 
   public async findMany(options: Partial<K>): Promise<K[]>;
 
-  public async findByIdAndUpdate(id: string, body: Partial<K>): Promise<K>;
+  public async findOneAndUpdate(
+    searchParams: Partial<T>,
+    body: Partial<K>
+  ): Promise<K>;
 
-  public async findByIdAndDelete(id: string): Promise<K>;
+  public async findOneAndDelete(searchParams: Partial<T>): Promise<K>;
 }
