@@ -1,56 +1,11 @@
-import * as crypto from "crypto";
+import cryptoJs from "crypto-js";
 
-const algorithm = "aes-256-ctr";
-const iv = crypto.randomBytes(16);
-
-/**
- * Encrypt plaintext to iv and hash
- *
- * @param {string} text - plaintext to encrypt
- * @param {string} password - ciphertext to encrypt credentials with
- * @returns {{ iv: string, content: string }}
- */
-export const encrypt = (text: string, password: string) => {
-  const key = crypto
-    .createHash("sha256")
-    .update(String(password))
-    .digest("base64")
-    .substring(0, 32);
-  const cipher = crypto.createCipheriv(algorithm, key, iv);
-  const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-
-  return {
-    iv: iv.toString("hex"),
-    content: encrypted.toString("hex"),
-  };
+export const encryptWithAES = (text: string, password: string) => {
+  return cryptoJs.AES.encrypt(text, password).toString();
 };
 
-/**
- * Decrypt the iv and content to plaintext
- *
- * @param {{ iv: string, content: string }} hash - plaintext to encrypt
- * @param {string} password - ciphertext to encrypt credentials with
- * @returns {string}
- */
-export const decrypt = (
-  hash: { iv: string; content: string },
-  password: string
-) => {
-  const key = crypto
-    .createHash("sha256")
-    .update(String(password))
-    .digest("base64")
-    .substring(0, 32);
-  const decipher = crypto.createDecipheriv(
-    algorithm,
-    key,
-    Buffer.from(hash.iv, "hex")
-  );
-
-  const decrpyted = Buffer.concat([
-    decipher.update(Buffer.from(hash.content, "hex")),
-    decipher.final(),
-  ]);
-
-  return decrpyted.toString();
+export const decryptWithAES = (cipher: string, password: string) => {
+  const bytes = cryptoJs.AES.decrypt(cipher, password);
+  const originalText = bytes.toString(cryptoJs.enc.Utf8);
+  return originalText;
 };

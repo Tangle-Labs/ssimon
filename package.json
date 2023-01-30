@@ -8,9 +8,9 @@
   "author": "Merul <merul@tanglelabs.io>",
   "license": "GPL-2.0",
   "dependencies": {
-    "@iota/identity-stronghold-nodejs": "^0.6.0",
     "@iota/identity-wasm": "^0.6.0",
-    "@types/jsdoc-to-markdown": "^7.0.3"
+    "@types/jsdoc-to-markdown": "^7.0.3",
+    "crypto-js": "^4.1.1"
   },
   "scripts": {
     "build": "tsc; copyfiles -u 1 \"src/**/*.d.ts\" dist;",
@@ -23,6 +23,7 @@
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "@types/jest": "^28.1.4",
     "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.3",

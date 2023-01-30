@@ -1,59 +1,38 @@
-import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
-import { DID, Document } from "@iota/identity-wasm/node";
-import { IStorageDriverProps } from "./StorageDriver/drivers/storage-driver.types";
-import { ConfigAdapter } from "./Adapters/ConfigAdapter";
+import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
+import { NetworkAdapter } from "./NetworkAdapter/index.types";
+import { StorageSpec } from "./Storage/index.types";
 
 export type IdentityConfig = {
   alias: string;
-  document: Document;
-  did: DID;
-  store: IStorageDriverProps;
+  did: string;
+  document: Record<string, any>;
+  store: Record<string, any>;
+  seed: string;
 };
 
-/**
- * Fragment type for IOTA Identity Fragments
- * example: #my-signing-method
- */
-export type Fragment = `#${string}`;
-
-export interface ICreateDidProps {
+export type CreateDidProps = {
   alias: string;
-  store: IStorageDriverProps;
-}
-
-type HashedString = {
-  iv: string;
-  content: string;
+  seed?: string;
 };
 
-/**
- * Interface for the backup props
- */
-export interface IManagerBackup {
-  stronghold: HashedString;
-  config: HashedString;
-  credentials: HashedString;
-}
-
-export interface IIdentityManagerProps {
-  /**
-   * Filepath to store stronghold file at
-   */
-  filepath: string;
-
-  /**
-   * Password for the stronghold file
-   */
+export type IdentityManagerOptions<T extends StorageSpec> = {
+  adapter: typeof NetworkAdapter;
   password: string;
+  storage: {
+    store: typeof T;
+    props: any;
+  };
+};
 
-  /**
-   * Identity Manager alias, alias will be used to create the stronghold file
-   * and config
-   */
-  managerAlias: string;
+export declare class IdentityManagerSpec {
+  networkAdapter: NetworkAdapter;
 
-  /**
-   * Adapter for the identity config
-   */
-  configAdapter?: typeof ConfigAdapter;
+  public static async build(): Promise<IdentityManager>;
+
+  public getDid(props: {
+    did?: string;
+    alias?: string;
+  }): Promise<IdentityAccount>;
+
+  public createDid(...props: any[]): Promise<IdentityAccount>;
 }
