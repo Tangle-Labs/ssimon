@@ -6,7 +6,7 @@ export interface IVerificationResult {
 }
 
 export declare class CredentialsManager<
-  T extends CredentialsStorageDriverSpec<any, any>
+  T extends CredentialsStorageDriverSpec<Record<string, any>, any>
 > {
   store: T;
 
