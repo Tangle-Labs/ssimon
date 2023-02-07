@@ -3,6 +3,7 @@ import { IdentityConfig } from "../../identity-manager.types";
 import { IFileStoreOptions } from "./index.types";
 import { writeFile, readFile } from "fs/promises";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
+import { serialize, deserialize } from "@macfja/serializer";
 
 export class FileStorage<T extends IdentityConfig>
   implements StorageSpec<T, T>
@@ -55,7 +56,7 @@ export class FileStorage<T extends IdentityConfig>
       for (const key of Object.keys(options)) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        if (e[key] === options[key]) matches++;
+        if (e[key] === options[key] || !options[key]) matches++;
       }
       return matches === Object.keys(options).length;
     });

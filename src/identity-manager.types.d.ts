@@ -1,18 +1,13 @@
+import { CredentialsStorageDriverSpec } from "./NetworkAdapter/CredentialsManager/CredentialsStorageDriver/index.types";
 import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
-import { NetworkAdapter } from "./NetworkAdapter/index.types";
+import { NetworkAdapter, StoreOptions } from "./NetworkAdapter/index.types";
 import { StorageSpec } from "./Storage/index.types";
 
 export type IdentityConfig = {
   alias: string;
   did: string;
   document: Record<string, any>;
-  store: Record<string, any>;
   seed: string;
-};
-
-export type CreateDidProps = {
-  alias: string;
-  seed?: string;
 };
 
 export type IdentityManagerOptions<T extends StorageSpec> = {
