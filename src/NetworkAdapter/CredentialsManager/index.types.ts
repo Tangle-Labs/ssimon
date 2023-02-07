@@ -1,7 +1,4 @@
-import {
-  CredentialsStorageDriverSpec,
-  IStorageDriver,
-} from "./CredentialsStorageDriver/index.types";
+import { CredentialsStorageDriverSpec } from "./CredentialsStorageDriver/index.types";
 
 export interface IVerificationResult {
   vc: boolean;
@@ -9,11 +6,13 @@ export interface IVerificationResult {
 }
 
 export declare class CredentialsManager<
-  T extends CredentialsStorageDriverSpec
+  T extends CredentialsStorageDriverSpec<any, any>
 > {
   store: T;
 
-  public static async build(...props: any[]): Promise<CredentialsManager>;
+  public static build<T extends CredentialsStorageDriverSpec<any, any>>(
+    ...props: any[]
+  ): Promise<CredentialsManager<T>>;
 
   public isCredentialValid(...props: any[]): Promise<boolean>;
 

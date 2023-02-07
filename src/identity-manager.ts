@@ -1,11 +1,11 @@
 import {
-  CreateDidProps,
   IdentityConfig,
   IdentityManagerOptions,
   IdentityManagerSpec,
 } from "./identity-manager.types";
+import { CredentialsStorageDriverSpec } from "./NetworkAdapter/CredentialsManager/CredentialsStorageDriver/index.types";
 import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
-import { NetworkAdapter } from "./NetworkAdapter/index.types";
+import { CreateDidProps, NetworkAdapter } from "./NetworkAdapter/index.types";
 import { StorageSpec } from "./Storage/index.types";
 
 export class IdentityManager<T extends IdentityAccount>
@@ -24,26 +24,36 @@ export class IdentityManager<T extends IdentityAccount>
     return manager;
   }
 
-  public async getDid(props: {
+  public async getDid<
+    T extends CredentialsStorageDriverSpec<Record<string, any>, any>
+  >(props: {
     did?: string;
     alias?: string;
+    store: T;
   }): Promise<IdentityAccount> {
-    const config = await this.storage.findOne(props);
+    const config = await this.storage.findOne({
+      did: props.did,
+      alias: props.alias,
+    });
     if (!config) throw new Error("Unable to find DID");
-    const { identity } = await this.networkAdapter.deserializeDid(config);
+    const { identity } = await this.networkAdapter.deserializeDid(
+      config,
+      props.store
+    );
     return identity;
   }
 
-  public async createDid(props: CreateDidProps): Promise<IdentityAccount> {
+  public async createDid<
+    T extends CredentialsStorageDriverSpec<Record<string, any>, any>
+  >(props: CreateDidProps<T>): Promise<IdentityAccount> {
     if (await this.storage.findOne({ alias: props.alias }))
       throw new Error("Alias already exists");
-    const { identity, seed } = await this.networkAdapter.createDid(props.seed);
+    const { identity, seed } = await this.networkAdapter.createDid(props);
     const config: IdentityConfig = {
+      seed,
       did: identity.getDid(),
       document: identity.getDocument(),
       alias: props.alias,
-      store: {},
-      seed,
     };
     if (await this.storage.findOne({ did: config.did }))
       throw new Error("Did already exists");
