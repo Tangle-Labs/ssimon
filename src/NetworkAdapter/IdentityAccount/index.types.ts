@@ -7,6 +7,7 @@ export type IdentityAccountProps<
   seed: string;
   isOld: boolean;
   store: T;
+  extras?: any;
 };
 
 export declare class IdentityAccount {
