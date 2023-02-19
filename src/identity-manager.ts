@@ -19,8 +19,9 @@ export class IdentityManager<T extends IdentityAccount>
   ) {
     const { adapter, storage, password } = options;
     const manager = new IdentityManager();
-    manager.networkAdapter = await adapter.build();
     manager.storage = await storage.store.build({ ...storage.props, password });
+
+    manager.networkAdapter = await adapter.build({ driver: manager.storage });
     return manager;
   }
 

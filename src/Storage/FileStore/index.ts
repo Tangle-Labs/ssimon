@@ -3,7 +3,6 @@ import { IdentityConfig } from "../../identity-manager.types";
 import { IFileStoreOptions } from "./index.types";
 import { writeFile, readFile } from "fs/promises";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
-import { serialize, deserialize } from "@macfja/serializer";
 
 export class FileStorage<T extends IdentityConfig>
   implements StorageSpec<T, T>
