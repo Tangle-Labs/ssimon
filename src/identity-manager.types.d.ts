@@ -8,6 +8,7 @@ export type IdentityConfig = {
   did: string;
   document: Record<string, any>;
   seed: string;
+  extras?: any;
 };
 
 export type IdentityManagerOptions<T extends StorageSpec> = {
