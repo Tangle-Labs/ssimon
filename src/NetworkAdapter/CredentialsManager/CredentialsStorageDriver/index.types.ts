@@ -1,5 +1,5 @@
 export declare class CredentialsStorageDriverSpec<T, K> {
-  public static async build(): Promise<CredentialsStorageDriverSpec<T, K>>;
+  public static build<T, K>(): Promise<CredentialsStorageDriverSpec<T, K>>;
   /**
    * Find and return all instanstances of Credentiaks
    */

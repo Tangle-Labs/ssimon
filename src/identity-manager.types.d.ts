@@ -5,9 +5,10 @@ import { StorageSpec } from "./Storage/index.types";
 
 export type IdentityConfig = {
   alias: string;
-  did: string;
-  document: Record<string, any>;
-  seed: string;
+  did?: string;
+  document?: Record<string, any>;
+  seed?: string;
+  extras?: any;
 };
 
 export type IdentityManagerOptions<T extends StorageSpec> = {

@@ -5,6 +5,14 @@ export interface IVerificationResult {
   dvid: boolean;
 }
 
+export type CreateCredentialProps = {
+  id: string;
+  recipientDid: string;
+  body: Record<string, unknown>;
+  type: string | string[];
+  keyIndex: number;
+};
+
 export declare class CredentialsManager<
   T extends CredentialsStorageDriverSpec<Record<string, any>, any>
 > {
@@ -14,11 +22,15 @@ export declare class CredentialsManager<
     ...props: any[]
   ): Promise<CredentialsManager<T>>;
 
-  public isCredentialValid(...props: any[]): Promise<boolean>;
+  public isCredentialValid(
+    credential: Record<string, unknown>
+  ): Promise<boolean>;
 
-  public verify(...props: any[]): Promise<IVerificationResult>;
+  public verify(
+    credential: Record<string, unknown>
+  ): Promise<IVerificationResult>;
 
-  public create(...props: any[]): Promise<Record<string, any>>;
+  public create(options: CreateCredentialProps): Promise<Record<string, any>>;
 
-  public revoke(...props: any[]): Promise<void>;
+  public revoke(keyIndex: number): Promise<void>;
 }

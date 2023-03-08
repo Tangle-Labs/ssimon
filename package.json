@@ -8,11 +8,7 @@
   "author": "Merul <merul@tanglelabs.io>",
   "license": "GPL-2.0",
   "dependencies": {
-    "@iota/identity-wasm": "^0.6.0",
-    "@macfja/serializer": "^1.1.2",
     "@types/jsdoc-to-markdown": "^7.0.3",
-    "class-hydrator": "^1.0.13",
-    "class-transformer": "^0.5.1",
     "crypto-js": "^4.1.1"
   },
   "scripts": {
@@ -35,8 +31,6 @@
     "eslint": "^8.19.0",
     "jest": "^28.1.2",
     "jsdoc-to-markdown": "^7.1.1",
-    "mongodb-memory-server": "^8.7.2",
-    "mongoose": "^6.4.3",
     "prettier": "^2.7.1",
     "semantic-release": "^19.0.3",
     "ts-jest": "^28.0.5",

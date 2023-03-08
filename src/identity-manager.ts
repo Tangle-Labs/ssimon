@@ -19,8 +19,8 @@ export class IdentityManager<T extends IdentityAccount>
   ) {
     const { adapter, storage, password } = options;
     const manager = new IdentityManager();
-    manager.networkAdapter = await adapter.build();
     manager.storage = await storage.store.build({ ...storage.props, password });
+    manager.networkAdapter = await adapter.build({ driver: manager.storage });
     return manager;
   }
 
@@ -48,16 +48,12 @@ export class IdentityManager<T extends IdentityAccount>
   >(props: CreateDidProps<T>): Promise<IdentityAccount> {
     if (await this.storage.findOne({ alias: props.alias }))
       throw new Error("Alias already exists");
+    await this.storage.create({ alias: props.alias });
     const { identity, seed } = await this.networkAdapter.createDid(props);
-    const config: IdentityConfig = {
-      seed,
-      did: identity.getDid(),
-      document: identity.getDocument(),
-      alias: props.alias,
-    };
-    if (await this.storage.findOne({ did: config.did }))
-      throw new Error("Did already exists");
-    await this.storage.create(config);
+
+    console.log("this messes up?");
+    await this.storage.findOneAndUpdate({ alias: props.alias }, { seed });
+    console.log("no it doesn't you bozo");
 
     return identity;
   }

@@ -1,12 +1,22 @@
 import { CredentialsStorageDriverSpec } from "../CredentialsManager/CredentialsStorageDriver/index.types";
 import { CredentialsManager } from "../CredentialsManager/index.types";
 
+export type IdentityAccountProps<
+  T extends CredentialsStorageDriverSpec<Record<string, any>, any>
+> = {
+  seed: string;
+  isOld: boolean;
+  alias: string;
+  store: T;
+  extras?: any;
+};
+
 export declare class IdentityAccount {
   credentials: CredentialsManager<
     CredentialsStorageDriverSpec<Record<string, any>, any>
   >;
 
-  public static async build(...props: any[]): Promise<IdentityAccount>;
+  public static build(): Promise<IdentityAccount>;
 
   public getDid(): string;
 
