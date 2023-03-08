@@ -51,9 +51,7 @@ export class IdentityManager<T extends IdentityAccount>
     await this.storage.create({ alias: props.alias });
     const { identity, seed } = await this.networkAdapter.createDid(props);
 
-    console.log("this messes up?");
     await this.storage.findOneAndUpdate({ alias: props.alias }, { seed });
-    console.log("no it doesn't you bozo");
 
     return identity;
   }
