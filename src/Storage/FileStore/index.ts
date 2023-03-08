@@ -27,13 +27,14 @@ export class FileStorage<T extends IdentityConfig>
   }
 
   private async _getFileContents(): Promise<T[]> {
+    let decrypted: string;
     try {
       const raw = await readFile(this.filepath);
-      const decrypted = decryptWithAES(raw.toString(), this.password);
-      return JSON.parse(decrypted);
-    } catch {
+      decrypted = decryptWithAES(raw.toString(), this.password);
+    } catch (error) {
       throw new Error("Incorrect Password");
     }
+    return JSON.parse(decrypted);
   }
 
   private async _writeFileContents(data: Record<string, any>) {
@@ -103,7 +104,7 @@ export class FileStorage<T extends IdentityConfig>
       for (const key of Object.keys(searchParams)) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        if (e[key] === options[key]) matches++;
+        if (e[key] === searchParams[key]) matches++;
       }
       return matches !== Object.keys(searchParams).length;
     });

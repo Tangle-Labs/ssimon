@@ -6,6 +6,7 @@ export type IdentityAccountProps<
 > = {
   seed: string;
   isOld: boolean;
+  alias: string;
   store: T;
   extras?: any;
 };
