@@ -9,7 +9,7 @@ import { CreateDidProps, NetworkAdapter } from "./NetworkAdapter/index.types";
 import { StorageSpec } from "./Storage/index.types";
 
 export class IdentityManager<T extends IdentityAccount>
-  implements IdentityManagerSpec
+  implements IdentityManagerSpec<T>
 {
   networkAdapter: NetworkAdapter<T>;
   storage: StorageSpec<IdentityConfig, IdentityConfig>;
@@ -17,9 +17,9 @@ export class IdentityManager<T extends IdentityAccount>
   public static async build(
     options: IdentityManagerOptions<StorageSpec<any, any>>
   ) {
-    const { adapter, storage, password } = options;
+    const { adapter, storage } = options;
     const manager = new IdentityManager();
-    manager.storage = await storage.store.build({ ...storage.props, password });
+    manager.storage = storage;
     manager.networkAdapter = await adapter.build({ driver: manager.storage });
     return manager;
   }

@@ -1,6 +1,5 @@
-import { CredentialsStorageDriverSpec } from "./NetworkAdapter/CredentialsManager/CredentialsStorageDriver/index.types";
 import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
-import { NetworkAdapter, StoreOptions } from "./NetworkAdapter/index.types";
+import { NetworkAdapter } from "./NetworkAdapter/index.types";
 import { StorageSpec } from "./Storage/index.types";
 
 export type IdentityConfig = {
@@ -11,19 +10,17 @@ export type IdentityConfig = {
   extras?: any;
 };
 
-export type IdentityManagerOptions<T extends StorageSpec> = {
+export type IdentityManagerOptions<T extends StorageSpec<any, any>> = {
   adapter: typeof NetworkAdapter;
-  password: string;
-  storage: {
-    store: typeof T;
-    props: any;
-  };
+  storage: T;
 };
 
-export declare class IdentityManagerSpec {
-  networkAdapter: NetworkAdapter;
+export declare class IdentityManagerSpec<T extends IdentityAccount> {
+  networkAdapter: NetworkAdapter<T>;
 
-  public static async build(): Promise<IdentityManager>;
+  public static build<T extends IdentityAccount>(): Promise<
+    IdentityManagerSpec<T>
+  >;
 
   public getDid(props: {
     did?: string;
