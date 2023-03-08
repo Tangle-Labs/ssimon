@@ -8,3 +8,5 @@ export * from "./Storage/FileStore/index";
 export * from "./Storage/FileStore/index.types";
 export * from "./utils/codec";
 export * from "./utils/crypto";
+export * from "./identity-manager";
+export * from "./identity-manager.types";
