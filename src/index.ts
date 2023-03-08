@@ -6,3 +6,5 @@ export * from "./NetworkAdapter/CredentialsManager/CredentialsStorageDriver/FsDr
 export * from "./Storage/index.types";
 export * from "./Storage/FileStore/index";
 export * from "./Storage/FileStore/index.types";
+export * from "./utils/codec";
+export * from "./utils/crypto";
