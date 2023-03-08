@@ -10,20 +10,18 @@ export class FileStorage<T extends IdentityConfig>
   filepath: string;
   password: string;
 
-  private constructor() {
-    null;
+  constructor(props: IFileStoreOptions) {
+    this.filepath = props.filepath;
+    this.password = props.password;
+    this.build();
   }
 
-  public static async build(props: IFileStoreOptions) {
-    const store = new FileStorage();
-    const encrypted = encryptWithAES(JSON.stringify([]), props.password);
-    await readFile(props.filepath).catch(async (err) => {
+  private async build() {
+    const encrypted = encryptWithAES(JSON.stringify([]), this.password);
+    await readFile(this.filepath).catch(async (err) => {
       if (!(err.code === "ENOENT")) throw new Error("unable to read file");
-      writeFile(props.filepath, encrypted);
+      writeFile(this.filepath, encrypted);
     });
-    store.filepath = props.filepath;
-    store.password = props.password;
-    return store;
   }
 
   private async _getFileContents(): Promise<T[]> {

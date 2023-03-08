@@ -8,11 +8,10 @@
   "author": "Merul <merul@tanglelabs.io>",
   "license": "GPL-2.0",
   "dependencies": {
-    "@types/jsdoc-to-markdown": "^7.0.3",
     "crypto-js": "^4.1.1"
   },
   "scripts": {
-    "build": "tsc; copyfiles -u 1 \"src/**/*.d.ts\" dist;",
+    "build": "tsc",
     "test": "jest",
     "coverage": "jest --coverage",
     "lint": "eslint . --cache",
@@ -24,10 +23,10 @@
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
     "@types/jest": "^28.1.4",
+    "@types/jsdoc-to-markdown": "^7.0.3",
     "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.3",
     "@typescript-eslint/parser": "^5.30.3",
-    "copyfiles": "^2.4.1",
     "eslint": "^8.19.0",
     "jest": "^28.1.2",
     "jsdoc-to-markdown": "^7.1.1",
