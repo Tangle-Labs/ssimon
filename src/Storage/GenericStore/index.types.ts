@@ -3,5 +3,5 @@ export interface IGenericStoreProps {
   password: string;
   writer: (body: any) => Promise<void>;
   reader: () => Promise<string>;
-  build: () => Promise<void>;
+  build?: () => Promise<void>;
 }
