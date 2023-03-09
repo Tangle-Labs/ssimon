@@ -1,8 +1,8 @@
-import { CredentialsStorageDriverSpec } from "../CredentialsManager/CredentialsStorageDriver/index.types";
+import { StorageSpec } from "../../Storage/index.types";
 import { CredentialsManager } from "../CredentialsManager/index.types";
 
 export type IdentityAccountProps<
-  T extends CredentialsStorageDriverSpec<Record<string, any>, any>
+  T extends StorageSpec<Record<string, any>, any>
 > = {
   seed: string;
   isOld: boolean;
@@ -12,9 +12,7 @@ export type IdentityAccountProps<
 };
 
 export declare class IdentityAccount {
-  credentials: CredentialsManager<
-    CredentialsStorageDriverSpec<Record<string, any>, any>
-  >;
+  credentials: CredentialsManager<StorageSpec<Record<string, any>, any>>;
 
   public static build(): Promise<IdentityAccount>;
 
