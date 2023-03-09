@@ -1,4 +1,4 @@
-import { CredentialsStorageDriverSpec } from "./CredentialsStorageDriver/index.types";
+import { StorageSpec } from "../../Storage/index.types";
 
 export interface IVerificationResult {
   vc: boolean;
@@ -14,11 +14,11 @@ export type CreateCredentialProps = {
 };
 
 export declare class CredentialsManager<
-  T extends CredentialsStorageDriverSpec<Record<string, any>, any>
+  T extends StorageSpec<Record<string, any>, any>
 > {
   store: T;
 
-  public static build<T extends CredentialsStorageDriverSpec<any, any>>(
+  public static build<T extends StorageSpec<any, any>>(
     ...props: any[]
   ): Promise<CredentialsManager<T>>;
 

@@ -1,6 +1,6 @@
 import { StorageSpec } from "../index.types";
 import { IdentityConfig } from "../../identity-manager.types";
-import { IFileStoreOptions } from "./index.types";
+import { IGenericStoreProps } from "./index.types";
 import { writeFile, readFile } from "fs";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
 import { promisify } from "util";
@@ -8,30 +8,26 @@ import { promisify } from "util";
 const fsReadFile = promisify(readFile);
 const fsWriteFile = promisify(writeFile);
 
-export class FileStorage<T extends IdentityConfig>
+export class GenericStore<T extends IdentityConfig>
   implements StorageSpec<T, T>
 {
-  filepath: string;
+  path: string;
   password: string;
+  writer: (body: any) => Promise<void>;
+  reader: () => Promise<string>;
 
-  constructor(props: IFileStoreOptions) {
-    this.filepath = props.filepath;
+  constructor(props: IGenericStoreProps) {
+    this.path = props.path;
     this.password = props.password;
-    this.build();
-  }
-
-  private async build() {
-    const encrypted = encryptWithAES(JSON.stringify([]), this.password);
-    await fsReadFile(this.filepath).catch(async (err) => {
-      if (!(err.code === "ENOENT")) throw new Error("unable to read file");
-      fsWriteFile(this.filepath, encrypted);
-    });
+    this.writer = props.writer;
+    this.reader = props.reader;
+    if (props.build) props.build();
   }
 
   private async _getFileContents(): Promise<T[]> {
     let decrypted: string;
     try {
-      const raw = await fsReadFile(this.filepath);
+      const raw = await this.reader();
       decrypted = decryptWithAES(raw.toString(), this.password);
     } catch (error) {
       throw new Error("Incorrect Password");
@@ -41,7 +37,7 @@ export class FileStorage<T extends IdentityConfig>
 
   private async _writeFileContents(data: Record<string, any>) {
     const encrypted = encryptWithAES(JSON.stringify(data), this.password);
-    await fsWriteFile(this.filepath, encrypted);
+    await this.writer(encrypted);
   }
 
   public async create(body: T): Promise<T> {
