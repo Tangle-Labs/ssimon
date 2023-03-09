@@ -1,6 +1,6 @@
 {
   "name": "@tanglelabs/identity-manager",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "IdentityManager is a high level abstraction of the IOTA Identity Framework which simplifies a lot of Identity Related tasks",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
