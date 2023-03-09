@@ -3,10 +3,6 @@ import { IdentityConfig } from "../../identity-manager.types";
 import { IGenericStoreProps } from "./index.types";
 import { writeFile, readFile } from "fs";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
-import { promisify } from "util";
-
-const fsReadFile = promisify(readFile);
-const fsWriteFile = promisify(writeFile);
 
 export class GenericStore<T extends IdentityConfig>
   implements StorageSpec<T, T>
