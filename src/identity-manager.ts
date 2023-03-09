@@ -3,7 +3,6 @@ import {
   IdentityManagerOptions,
   IdentityManagerSpec,
 } from "./identity-manager.types";
-import { CredentialsStorageDriverSpec } from "./NetworkAdapter/CredentialsManager/CredentialsStorageDriver/index.types";
 import { IdentityAccount } from "./NetworkAdapter/IdentityAccount/index.types";
 import { CreateDidProps, NetworkAdapter } from "./NetworkAdapter/index.types";
 import { StorageSpec } from "./Storage/index.types";
@@ -24,9 +23,7 @@ export class IdentityManager<T extends IdentityAccount>
     return manager;
   }
 
-  public async getDid<
-    T extends CredentialsStorageDriverSpec<Record<string, any>, any>
-  >(props: {
+  public async getDid<T extends StorageSpec<Record<string, any>, any>>(props: {
     did?: string;
     alias?: string;
     store: T;
@@ -43,9 +40,9 @@ export class IdentityManager<T extends IdentityAccount>
     return identity;
   }
 
-  public async createDid<
-    T extends CredentialsStorageDriverSpec<Record<string, any>, any>
-  >(props: CreateDidProps<T>): Promise<IdentityAccount> {
+  public async createDid<T extends StorageSpec<Record<string, any>, any>>(
+    props: CreateDidProps<T>
+  ): Promise<IdentityAccount> {
     if (await this.storage.findOne({ alias: props.alias }))
       throw new Error("Alias already exists");
     await this.storage.create({ alias: props.alias });
