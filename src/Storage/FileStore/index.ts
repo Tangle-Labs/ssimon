@@ -1,8 +1,12 @@
 import { StorageSpec } from "../index.types";
 import { IdentityConfig } from "../../identity-manager.types";
 import { IFileStoreOptions } from "./index.types";
-import { writeFile, readFile } from "fs/promises";
+import { writeFile, readFile } from "fs";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
+import { promisify } from "util";
+
+const fsReadFile = promisify(readFile);
+const fsWriteFile = promisify(writeFile);
 
 export class FileStorage<T extends IdentityConfig>
   implements StorageSpec<T, T>
@@ -18,16 +22,16 @@ export class FileStorage<T extends IdentityConfig>
 
   private async build() {
     const encrypted = encryptWithAES(JSON.stringify([]), this.password);
-    await readFile(this.filepath).catch(async (err) => {
+    await fsReadFile(this.filepath).catch(async (err) => {
       if (!(err.code === "ENOENT")) throw new Error("unable to read file");
-      writeFile(this.filepath, encrypted);
+      fsWriteFile(this.filepath, encrypted);
     });
   }
 
   private async _getFileContents(): Promise<T[]> {
     let decrypted: string;
     try {
-      const raw = await readFile(this.filepath);
+      const raw = await fsReadFile(this.filepath);
       decrypted = decryptWithAES(raw.toString(), this.password);
     } catch (error) {
       throw new Error("Incorrect Password");
@@ -37,7 +41,7 @@ export class FileStorage<T extends IdentityConfig>
 
   private async _writeFileContents(data: Record<string, any>) {
     const encrypted = encryptWithAES(JSON.stringify(data), this.password);
-    await writeFile(this.filepath, encrypted);
+    await fsWriteFile(this.filepath, encrypted);
   }
 
   public async create(body: T): Promise<T> {
