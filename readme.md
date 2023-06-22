@@ -1,18 +1,17 @@
 # Identity Manager
 
-IdentityManager is a utility library that acts as a wrapper around most IOTA Identity functions and provides an easier and more comprehensive experience to manager your identities.
+IdentityManager is a utility library that acts as a wrapper around the functions of decentralized identity across a number of different DID methods. Providing an easier and more comprehensive experience to manage and control your identities.
 
-On top of simply managing your DID, the IdentityManager also combines the power of stronghold and DVID (Domain Verifiable Identity).
+On top of simply managing your Decentralized Identifier (DID), the IdentityManager also combines the power of secure key management and Domain Verifiable Identity (DVID).
 
-DVID verification connects your DID to a record on a domain's DNS, inspired by the DKIM protocol, you add your DID to a text record on the domain's DNS and during verification of a credential the issuer's DID is resolved from the dns record of the domain mentioned in the `id` field in the credential, Adding proof of origin to a Verifiable Credential.
+### DVID 
+DVID verification allows any identity holder the ability to connect DIDs to a domain DNS. Inspired by the DKIM protocol, you may add your DID to a text record on the domain's DNS and during verification of a credential the issuer's DID is resolved from the dns record of the domain mentioned in the `id` field in the credential. This functionality supports adding a human identifiable means of proof of origin (your website domain) to any Verifiable Credential, effectively allowing any DID method to provide web based verification - similar to that provided by DID:WEB.
 
 # What is Self-Sovereign Identity?
 
 In the sharing of digital data, SSI fosters trust. The user has discretion over what information, including personal information, is shared and with whom. For instance, the recipient can rapidly check the legality and authenticity of shared information electronically. For this, cryptographic tools like public-key cryptography, zero-knowledge proofs, and distributed ledger technologies are used. This makes it possible for parties who do not naturally trust each other to share verified digital information quickly and with a high level of trust.
 
-
-
-![The Self-Sovereign Identity Ecosystem using Identity Manager](https://tanglelabs.io/wp-content/uploads/2022/09/image-2048x1445.png)
+![The Self-Sovereign Identity Ecosystem using Identity Manager](https://images.squarespace-cdn.com/content/v1/644a24a11dfd0b0ca65ad88b/4f3b31ca-1092-4df6-af48-73f8c3353182/pkSJJDG.png?format=2500w)
 
 
 ## Additional features include:
@@ -27,6 +26,31 @@ Backup & Restore – A big concern when it comes to identity is backing up and r
 
 Typescript Library – Without the need to delve into low level Rust code, the Identity Manager libraries have been developed in Typescript to provide an accessible developer entry point to SSI through fully documented code that offers an easy access point to the technology for any development team.
 
+
+## Supported DID methods
+
+Currently the Self-Sovereign Identity Manager supports the following methods:
+
+[DID:KEY](https://w3c-ccg.github.io/did-method-key/)
+
+[DID:WEB](https://w3c-ccg.github.io/did-method-web/)
+
+[DID:SOV*](https://sovrin-foundation.github.io/sovrin/spec/did-method-spec-template.html)
+
+[DID:INDY*](https://hyperledger.github.io/indy-did-method/)
+
+[DID:IOTA](https://wiki.iota.org/identity.rs/specs/did/iota_did_method_spec/)
+
+
+Future methods in the process of being integrated include:
+
+[DID:PEER](https://identity.foundation/peer-did-method-spec/)
+
+[DID:KERI](https://weboftrust.github.io/ietf-did-keri/draft-pfeairheller-did-keri.html)
+
+[DID:JWK](https://github.com/quartzjer/did-jwk/blob/main/spec.md)
+
+ * ***currently undergoing refactor to incorporate latest SSIM functionality***
 
 
 ## Usage
