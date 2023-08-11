@@ -16,7 +16,7 @@ export type IdentityManagerOptions<T extends StorageSpec<any, any>> = {
 };
 
 export declare class IdentityManagerSpec<T extends IdentityAccount> {
-  networkAdapter: NetworkAdapter<T>;
+  networkAdapter: NetworkAdapter;
 
   public static build<T extends IdentityAccount>(): Promise<
     IdentityManagerSpec<T>
