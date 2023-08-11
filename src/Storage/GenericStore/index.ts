@@ -1,7 +1,6 @@
 import { StorageSpec } from "../index.types";
 import { IdentityConfig } from "../../identity-manager.types";
 import { IGenericStoreProps } from "./index.types";
-import { writeFile, readFile } from "fs";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
 
 export class GenericStore<T extends IdentityConfig>
