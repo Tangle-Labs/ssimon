@@ -17,10 +17,10 @@ export type CreateDidProps<T extends StorageSpec<Record<string, any>, any>> = {
   store: T;
 };
 
-export declare class NetworkAdapter<T extends IdentityAccount> {
+export declare class NetworkAdapter {
   public static build<T extends IdentityAccount>(
     options: NetworkAdapterOptions
-  ): Promise<NetworkAdapter<T>>;
+  ): Promise<NetworkAdapter>;
   public createDid<T extends StorageSpec<Record<string, any>, any>>(
     props: CreateDidProps<T>
   ): Promise<DidCreationResult>;

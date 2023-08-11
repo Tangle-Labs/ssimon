@@ -10,7 +10,7 @@ import { StorageSpec } from "./Storage/index.types";
 export class IdentityManager<T extends IdentityAccount>
   implements IdentityManagerSpec<T>
 {
-  networkAdapter: NetworkAdapter<T>;
+  networkAdapter: NetworkAdapter;
   storage: StorageSpec<IdentityConfig, IdentityConfig>;
 
   public static async build(
