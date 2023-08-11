@@ -19,4 +19,6 @@ export declare class IdentityAccount {
   public getDid(): string;
 
   public getDocument(): Record<string, any>;
+
+  public createPresentation(): Promise<Record<string, any>>;
 }
