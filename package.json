@@ -1,6 +1,6 @@
 {
   "name": "@tanglelabs/ssimon",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "IdentityManager is a high level abstraction of the IOTA Identity Framework which simplifies a lot of Identity Related tasks",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

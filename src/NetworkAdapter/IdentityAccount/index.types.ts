@@ -20,5 +20,7 @@ export declare class IdentityAccount {
 
   public getDocument(): Record<string, any>;
 
-  public createPresentation(): Promise<Record<string, any>>;
+  public createPresentation(
+    credentials: string[]
+  ): Promise<Record<string, any>>;
 }
