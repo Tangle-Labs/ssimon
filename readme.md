@@ -38,4 +38,3 @@ $ yarn add @tanglelabs/ssimon
 ## Documentation
 
 - see [Developer Documentation](docs/)
-- see [examples](docs/examples)

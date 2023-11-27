@@ -12,3 +12,9 @@ TangleLabs currently has two Adapters which are fully SSIMON compatible
 | [@tanglelabs/key-identity-adapter](https://www.npmjs.com/package/@tanglelabs/key-identity-adapter)   | `did:key`  |
 
 When initialising SSIMON you can plug any of these adapters into the builder and it would allow you to deal with that method in particular.
+
+## Guides
+
+1. [Getting Started]("examples/1.md")
+2. [Managing Identity Accounts]("examples/2.md")
+3. [Managing Credentials]("examples/3.md")
