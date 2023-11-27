@@ -3,6 +3,11 @@ import { IdentityConfig } from "../../identity-manager.types";
 import { IGenericStoreProps } from "./index.types";
 import { decryptWithAES, encryptWithAES } from "../../utils/crypto";
 
+/**
+ * An encrypted store implementation which can take any reader and writer function
+ * and create a generic store, which store everything with AES cipher based encryption
+ */
+
 export class GenericStore<T extends IdentityConfig>
   implements StorageSpec<T, T>
 {
@@ -11,6 +16,13 @@ export class GenericStore<T extends IdentityConfig>
   writer: (body: any) => Promise<void>;
   reader: () => Promise<string>;
 
+  /**
+   * Create a new generic store with a generic reader and writer function, the
+   * reader and writer can be FS, DB or anything else you fancy
+   *
+   * @param {IGenericStoreProps} props
+   */
+
   constructor(props: IGenericStoreProps) {
     this.path = props.path;
     this.password = props.password;
@@ -18,6 +30,12 @@ export class GenericStore<T extends IdentityConfig>
     this.reader = props.reader;
     if (props.build) props.build();
   }
+
+  /**
+   * Get all the contents in the store location specified and decrypt them
+   *
+   * @returns Promise<T[]>
+   */
 
   private async _getFileContents(): Promise<T[]> {
     let decrypted: string;
@@ -30,10 +48,23 @@ export class GenericStore<T extends IdentityConfig>
     return JSON.parse(decrypted);
   }
 
+  /**
+   * write to raw file and encrypt the file data
+   *
+   * @param {Record<string, any>} data
+   */
+
   private async _writeFileContents(data: Record<string, any>) {
     const encrypted = encryptWithAES(JSON.stringify(data), this.password);
     await this.writer(encrypted);
   }
+
+  /**
+   * Create a new data entry
+   *
+   * @param {T} body
+   * @returns Promise<T>
+   */
 
   public async create(body: T): Promise<T> {
     const entities = await this._getFileContents();
@@ -41,6 +72,13 @@ export class GenericStore<T extends IdentityConfig>
     await this._writeFileContents(data);
     return body;
   }
+
+  /**
+   * Find one entry in the storage using partial of T
+   *
+   * @param {Partial<T>} options
+   * @returns Promise<T>
+   */
 
   public async findOne(options: Partial<T>): Promise<T> {
     const entities = await this._getFileContents();
@@ -55,6 +93,13 @@ export class GenericStore<T extends IdentityConfig>
     });
   }
 
+  /**
+   * Find many entities in the storage using partial of T
+   *
+   * @param {Partial<T>} options
+   * @returns Promise<T[]>
+   */
+
   public async findMany(options: Partial<T>): Promise<T[]> {
     const entities = await this._getFileContents();
     return entities.filter((e) => {
@@ -67,6 +112,13 @@ export class GenericStore<T extends IdentityConfig>
       return matches === Object.keys(options).length;
     });
   }
+
+  /**
+   * Find one entry in the storage using partial of T and delete
+   *
+   * @param {Partial<T>} searchParams
+   * @returns Promise<T>
+   */
 
   public async findOneAndDelete(searchParams: Partial<T>): Promise<T> {
     const entities = await this._getFileContents();
@@ -84,6 +136,14 @@ export class GenericStore<T extends IdentityConfig>
     await this._writeFileContents(filtered);
     return match;
   }
+
+  /**
+   * Find one entry in the storage using partial of T and update
+   *
+   * @param {Partial<T>} searchParams
+   * @param {Partial<K>} body
+   * @returns Promise<K>
+   */
 
   public async findOneAndUpdate(
     searchParams: Partial<T>,

@@ -13,6 +13,14 @@ export class IdentityManager<T extends IdentityAccount>
   networkAdapter: NetworkAdapter;
   storage: StorageSpec<IdentityConfig, IdentityConfig>;
 
+  /**
+   * Create a new Identity manager instance
+   * store being passed here will be used to store keys and config
+   *
+   * @param {IdentityManagerOptions} options
+   * @returns Promise<IdentityManager>
+   */
+
   public static async build(
     options: IdentityManagerOptions<StorageSpec<any, any>>
   ) {
@@ -22,6 +30,15 @@ export class IdentityManager<T extends IdentityAccount>
     manager.networkAdapter = await adapter.build({ driver: manager.storage });
     return manager;
   }
+
+  /**
+   * Get an existing DID from the storage, by either alias or the did identifier
+   * store being passed here is going to be used to store credentials, hence
+   * each DID should have a separate store to ensure separation of data
+   *
+   * @param props {{ did: string, alias: string, store: T }}
+   * @returns Promise<IdentityAccount>
+   */
 
   public async getDid<T extends StorageSpec<Record<string, any>, any>>(props: {
     did?: string;
@@ -39,6 +56,15 @@ export class IdentityManager<T extends IdentityAccount>
     );
     return identity;
   }
+
+  /**
+   * Create a new DID with a specific alias
+   * store being passed here is going to be used to store credentials, hence
+   * each DID should have a separate store to ensure separation of data
+   *
+   * @param {CreateDidProps} props
+   * @returns Promise<IdentityAccount>
+   */
 
   public async createDid<T extends StorageSpec<Record<string, any>, any>>(
     props: CreateDidProps<T>
