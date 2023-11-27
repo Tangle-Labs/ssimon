@@ -1,7 +1,7 @@
 {
   "name": "@tanglelabs/ssimon",
   "version": "0.5.1",
-  "description": "IdentityManager is a high level abstraction of the IOTA Identity Framework which simplifies a lot of Identity Related tasks",
+  "description": "SSIMON is an open, interoperable, and convenient software to manage DIDs and credentials",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "https://github.com/Tangle-Labs/identity-manager",
