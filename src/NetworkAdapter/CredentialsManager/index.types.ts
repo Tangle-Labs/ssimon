@@ -13,24 +13,61 @@ export type CreateCredentialProps = {
   keyIndex: number;
 };
 
+/**
+ * Credentials Manager, accessible at <account>.credentials
+ */
 export declare class CredentialsManager<
   T extends StorageSpec<Record<string, any>, any>
 > {
   store: T;
 
+  /**
+   * INTERNAL ONLY
+   *
+   * construct a new CredentialsManager
+   *
+   * @param {...any[]} props
+   */
   public static build<T extends StorageSpec<any, any>>(
     ...props: any[]
   ): Promise<CredentialsManager<T>>;
 
+  /**
+   * check wether a credential is cryptographically valid or not
+   *
+   * @param {Record<string, unknown>} credential
+   * @returns Promise<boolean>
+   */
   public isCredentialValid(
     credential: Record<string, unknown>
   ): Promise<boolean>;
+
+  /**
+   * Verify the credential and the proof or origin for a domain
+   *
+   * @param {Record<string, unknown>} credential
+   * @returns Promise<IVerificationResult>
+   */
 
   public verify(
     credential: Record<string, unknown>
   ): Promise<IVerificationResult>;
 
+  /**
+   * Create and issue a new credential
+   *
+   * @param {CreateCredentialProps} options
+   * @returns {Promise<Record<string, any>>}
+   */
+
   public create(options: CreateCredentialProps): Promise<Record<string, any>>;
+
+  /**
+   * Revoke a credential
+   *
+   * @param {number} keyIndex
+   * @returns {Promise<void>}
+   */
 
   public revoke(keyIndex: number): Promise<void>;
 }
