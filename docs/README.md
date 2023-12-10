@@ -10,6 +10,7 @@ TangleLabs currently has two Adapters which are fully SSIMON compatible
 | ---------------------------------------------------------------------------------------------------- | ---------- |
 | [@tanglelabs/iota-identity-adapter](https://www.npmjs.com/package/@tanglelabs/iota-identity-adapter) | `did:iota` |
 | [@tanglelabs/key-identity-adapter](https://www.npmjs.com/package/@tanglelabs/key-identity-adapter)   | `did:key`  |
+| [@tanglelabs/web-identity-adapter](https://www.npmjs.com/package/@tanglelabs/web-identity-adapter)   | `did:web`  |
 
 When initialising SSIMON you can plug any of these adapters into the builder and it would allow you to deal with that method in particular.
 
