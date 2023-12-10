@@ -13,7 +13,6 @@ export type CreateCredentialProps = {
   keyIndex: number;
 };
 
-
 export type CreateBadgeProps = CreateCredentialProps & {
   image: string;
   issuerName: string;
