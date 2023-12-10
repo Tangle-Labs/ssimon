@@ -13,6 +13,13 @@ export type CreateCredentialProps = {
   keyIndex: number;
 };
 
+export type CreateBadgeProps = CreateCredentialProps & {
+  image: string;
+  issuerName: string;
+  criteria: string;
+  description: string;
+};
+
 /**
  * Credentials Manager, accessible at <account>.credentials
  */
@@ -61,6 +68,15 @@ export declare class CredentialsManager<
    */
 
   public create(options: CreateCredentialProps): Promise<Record<string, any>>;
+
+  /**
+   * Create and issue a new badge
+   *
+   * @param {CreateBadgeProps} options
+   * @returns {Promise<Record<string, any>>}
+   */
+
+  public createBadge(options: CreateBadgeProps): Promise<Record<string, any>>;
 
   /**
    * Revoke a credential
