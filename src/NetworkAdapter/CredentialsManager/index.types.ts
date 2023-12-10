@@ -15,6 +15,7 @@ export type CreateCredentialProps = {
 
 export type CreateBadgeProps = CreateCredentialProps & {
   image: string;
+  badgeName: string;
   issuerName: string;
   criteria: string;
   description: string;
