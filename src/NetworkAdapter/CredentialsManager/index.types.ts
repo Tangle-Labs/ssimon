@@ -12,6 +12,7 @@ export type CreateCredentialProps = {
   type: string | string[];
   keyIndex: number;
   expiryDate?: number;
+  extras?: Record<string, unknown>;
 };
 
 export type CreateBadgeProps = CreateCredentialProps & {
